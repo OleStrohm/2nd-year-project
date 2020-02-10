@@ -14,7 +14,3 @@ Laura woz here
 
 ## Diagrams
 A collection of the circuit diagrams and sofware overviews (feel free to make folders as necessary).
-
-hi test
-
-heeeey
