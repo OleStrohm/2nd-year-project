@@ -1,6 +1,7 @@
 import keyboard as kb
 import mouse
 
+
 class Command:
     name = ""
 
@@ -63,10 +64,10 @@ class Text(Command):
 
 def move(angle, speed):
     for i in range(10):
-        mouse.move(1, 1, absolute=False, duration=(1/speed))
+        mouse.move(1, 1, absolute=False, duration=(1 / speed))
+
 
 if __name__ == "__main__":
-    move(90, 100)
-    # cmd = Macro("test", [Left(10), Text("teext"), Right(2), Text("more text")])
-    # cmd.execute()
+    cmd = Macro("test", [Left(5), Text("teext")])
+    cmd.execute()
 # ---------------------------------S------------------------------------
