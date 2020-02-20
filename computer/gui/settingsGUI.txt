@@ -1,0 +1,3 @@
+deadzone;0;Xrange;100;Yrange;100;Cursorspeed;20
+leftC;puff;short;rightC;puff;long;length;100; Minsensitivity; 0; Maxsensetivity; 100
+selectype; sip;puff; long;short
