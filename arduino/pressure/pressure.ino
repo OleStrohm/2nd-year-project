@@ -21,7 +21,7 @@ void loop() {
     previousMillis = currentMillis;
   }
 
-  if(samplecounter < numSamples){
+  if(samplecounter == numSamples){
     sensorValue = sampleAverage();
     samplecounter = 0;
   }
