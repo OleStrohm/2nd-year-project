@@ -86,6 +86,10 @@ class App:
         btn_def = tk.Button(self.main_menu, text='Window Options')
         btn_def.grid(row=2, column=2, sticky='news')
 
+        btn_factory = tk.Button(self.main_menu, text='Factory Settings', command = self.factory_settings)
+        btn_factory.grid(row =3, column =4, columnspan = 1, sticky = 'es')
+    
+
         self.main_menu.protocol('WM_DELETE_WINDOW', save_changed_settings('SettingsGUI.txt', self.settings))
 
     def settings_joy(self):
@@ -202,7 +206,6 @@ class App:
 
     def settings_update(self, value, name):
         self.settings[name] = value
-        
 
     def move(self):
         # set up grid
@@ -259,9 +262,25 @@ class App:
     def uppdate_transcript(self, line):
         self.transcription.config(text=line)
 
-def save_changed_settings(filename, dict):
-    pass
+    def factory_settings(self):
+        factory_msg = tk.messagebox.askokcancel(title = 'Reset to factory settings', message = 'Do you wish to reset the app to factory settings?\n All your personalised settings will be lost.')
+        if factory_msg:
+            self.settings = setting_config('DefaultSettingsGUI.txt')
+            save_changed_settings('settingsGUI.txt', self.settings)
 
+
+def save_changed_settings(filename, dict):
+    file = open(filename, 'w', encoding = 'utf-8')
+    li = dict.items()
+    for pair in li:
+        if not (isinstance(pair[1], list)):
+            file.write(str(pair[0]) + ';' + str(pair[1]) + '\n')
+        else:
+            file.write(str(pair[0]))
+            for el in pair[1]:
+                file.write(';'+ str(el) )
+            file.write('\n')
+    file.close()
 
 
 
@@ -292,27 +311,26 @@ class Mode_list():
         return list(self.dictionary.keys())
 
 
-def setting_config(settings_current, filename):
+def setting_config(filename):
     """sets up a dict contains all the settings"""
+    settings_current = {}
     file = open(filename, 'r', encoding='utf-8')
-    line = file.readlines()
-    for set in range(0, len(line)-1, 1):
-        l = line[set].strip('\n')
-        type = l.split(';')
-        for i in range(0, len(type)-1, 2):
-            settings_current[type[i]] = type[i+1]
-    # create list
-    l = line[-1].strip('\n')
-    type = l.split(';')
+    lines = file.readlines()
+    for line in lines:
+        l = line.strip('\n')
+        l = l.split(';')
+        if len(l)==2:
+            settings_current[l[0]]=l[1]
+        else:
+            tmp_l = []
+            for i in range(1,len(l)):
+                tmp_l.append(l[i])
+            settings_current[l[0]] = tmp_l
 
-    settings_current[type[3]] = [type[4], type[5]]
-    settings_current[type[0]] = [type[1], type[2]]
     file.close()
     return settings_current
 
 if __name__ == "__main__":
     modes = Mode_list('GUISetUp.txt')
-    settings_current = {}
-    settings = setting_config(settings_current,'SettingsGUI.txt')
-    print (settings)
+    settings = setting_config('SettingsGUI.txt')
     app = App(modes.get_keys(), settings)
