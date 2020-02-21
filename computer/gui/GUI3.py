@@ -1,6 +1,5 @@
 import tkinter as tk
 import tkinter.messagebox
-import datetime
 
 
 class App:
@@ -17,6 +16,7 @@ class App:
             self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
         self.root.attributes('-topmost', True)
         self.settings = settings
+        self.changes = False;
 
         # frame
         # self.panel_frame = Frame(self.root, )
@@ -86,11 +86,27 @@ class App:
         btn_def = tk.Button(self.main_menu, text='Window Options')
         btn_def.grid(row=2, column=2, sticky='news')
 
-        btn_factory = tk.Button(self.main_menu, text='Factory Settings', command = self.factory_settings)
+        btn_factory = tk.Button(self.main_menu, text='Factory Settings', command = lambda: self.factory_settings())
         btn_factory.grid(row =3, column =4, columnspan = 1, sticky = 'es')
-    
 
-        self.main_menu.protocol('WM_DELETE_WINDOW', save_changed_settings('SettingsGUI.txt', self.settings))
+        btn_save_default = tk.Button(self.main_menu, text='Save updated settings to Default', command = lambda: self.save('SettingsGUI.txt', self.settings))
+        btn_save_default.grid(row = 3, column = 1, columnspan = 2, sticky = 'ns')
+
+        btn_close = tk.Button(self.main_menu, text='Close settings', command= lambda: self.close_settings())
+        btn_close.grid(row=4, column=1, columnspan=2, sticky='s')
+
+        self.main_menu.protocol('WM_DELETE_WINDOW', self.close_settings)
+
+    def close_settings(self):
+        if (self.changes):
+            default_msg = tk.messagebox.askokcancel(title = 'Update settings', message= 'Do you wish to make the settings changes to your default settings?')
+            if default_msg:
+                self.save('SettingsGUI.txt', self.settings)
+        self.main_menu.destroy()
+
+    def save(self, filename, dict):
+        save_changed_settings(filename, dict)
+        self.changes = False;
 
     def settings_joy(self):
         joy_page = tk.Toplevel(self.main_menu)
@@ -138,7 +154,6 @@ class App:
         # Close Button
         btn_close_js = tk.Button(master=joy_page, text='Close Joystick Settings', command=lambda: joy_page.destroy())
         btn_close_js.grid(row=8, column=1, sticky='news')
-
 
     def settings_sip(self):
         page = tk.Toplevel(self.main_menu)
@@ -206,6 +221,7 @@ class App:
 
     def settings_update(self, value, name):
         self.settings[name] = value
+        self.changes = True;
 
     def move(self):
         # set up grid
@@ -262,6 +278,7 @@ class App:
     def uppdate_transcript(self, line):
         self.transcription.config(text=line)
 
+
     def factory_settings(self):
         factory_msg = tk.messagebox.askokcancel(title = 'Reset to factory settings', message = 'Do you wish to reset the app to factory settings?\n All your personalised settings will be lost.')
         if factory_msg:
@@ -270,6 +287,7 @@ class App:
 
 
 def save_changed_settings(filename, dict):
+    print('save changes runs')
     file = open(filename, 'w', encoding = 'utf-8')
     li = dict.items()
     for pair in li:
