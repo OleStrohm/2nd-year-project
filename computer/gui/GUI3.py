@@ -13,7 +13,8 @@ class App:
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
         self.root.geometry('%dx%d+0+%d' % (
-        self.width, 0.1 * self.height, self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
+            self.width, 0.1 * self.height,
+            self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
         self.root.attributes('-topmost', True)
         self.settings = settings
 
@@ -85,6 +86,8 @@ class App:
         btn_def = tk.Button(self.main_menu, text='Window Options')
         btn_def.grid(row=2, column=2, sticky='news')
 
+        self.main_menu.protocol('WM_DELETE_WINDOW', save_changed_settings('SettingsGUI.txt', self.settings))
+
     def settings_joy(self):
         joy_page = tk.Toplevel(self.main_menu)
         joy_page.title('Settings Joystick')
@@ -94,9 +97,9 @@ class App:
         l_smin = tk.Label(master=joy_page, text='Min Range 0').grid(row=1, column=0, sticky='nes')
         l_smax = tk.Label(master=joy_page, text='100 Max Range').grid(row=1, column=2, sticky='nws')
         slider_speed = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
-        slider_speed.set(self.settings.cursor_speed)  # update with settings value
-        slider_speed.grid(row=1, column=1, columnspan=2, sticky='news')
-        slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'js_speed'))
+        slider_speed.set(self.settings['Cursor_speed'])  # update with settings value
+        slider_speed.grid(row=1, column=1, columnspan=1, sticky='news')
+        slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'Cursor_speed'))
 
         # Set Up Range Sensetivity
         l_X = tk.Label(master=joy_page, text='X Range')
@@ -104,7 +107,7 @@ class App:
         l_Xmin = tk.Label(master=joy_page, text='Min Range 0').grid(row=3, column=0, sticky='nes')
         l_Xmix = tk.Label(master=joy_page, text='100 Max Range').grid(row=3, column=2, sticky='nws')
         slider_X = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal', )
-        slider_X.set(self.settings.Xrange)  # update with settings value
+        slider_X.set(self.settings['X_range'])  # update with settings value
         slider_X.grid(row=3, column=1, sticky='news')
         slider_X.bind("<ButtonRelease>", lambda event: self.settings_update(slider_X.get(), 'X_range'))
 
@@ -114,13 +117,24 @@ class App:
         l_Ymin = tk.Label(master=joy_page, text='Min Range 0').grid(row=5, column=0, sticky='nes')
         l_Ymix = tk.Label(master=joy_page, text='100 Max Range').grid(row=5, column=2, sticky='nws')
         slider_Y = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal', )
-        slider_Y.set(self.settings.Yrange)  # update with settings value
+        slider_Y.set(self.settings['Y_range'])  # update with settings value
         slider_Y.grid(row=5, column=1, sticky='news')
         slider_Y.bind("<ButtonRelease>", lambda event: self.settings_update(slider_Y.get(), 'Y_range'))
 
+        # set size of dead zone
+        l_speed = tk.Label(master=joy_page, text='Dead zone size')
+        l_speed.grid(row=6, column=0, columnspan=2, sticky='news')
+        l_smin = tk.Label(master=joy_page, text='Min size 0').grid(row=7, column=0, sticky='nes')
+        l_smax = tk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
+        slider_speed = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
+        slider_speed.set(self.settings['dead_zone'])  # update with settings value
+        slider_speed.grid(row=7, column=1, columnspan=1, sticky='news')
+        slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'dead_zone'))
+
         # Close Button
         btn_close_js = tk.Button(master=joy_page, text='Close Joystick Settings', command=lambda: joy_page.destroy())
-        btn_close_js.grid(row=6, column=1, sticky='news')
+        btn_close_js.grid(row=8, column=1, sticky='news')
+
 
     def settings_sip(self):
         page = tk.Toplevel(self.main_menu)
@@ -129,43 +143,66 @@ class App:
         l_pressure = tk.Label(master=page, text='Pressure Threshold')
         l_pressure.grid(row=0, column=0, columnspan=3, sticky='news')
         l_pmin = tk.Label(master=page, text='Min Range 0').grid(row=1, column=0, sticky='nes')
-        l_pmax = tk.Label(master=page, text='100 Max Range').grid(row=1, column=2, sticky='nws')
+        l_pmax = tk.Label(master=page, text='100 Max Range').grid(row=1, column=3, sticky='nws')
         slider_pressure = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
-        slider_pressure.set(self.settings.sens)  # update with settings value
+        slider_pressure.set(self.settings['Min_sens'])  # update with settings value
         slider_pressure.grid(row=1, column=1, columnspan=2, sticky='news')
         slider_pressure.bind("<ButtonRelease>",
-                             lambda event: self.settings_update(slider_pressure.get(), self.settings.sens))
+                             lambda event: self.settings_update(slider_pressure.get(), 'Min_sens'))
 
-        # Set type of 'left click puff
-        l_left = tk.Label(master=page, text='Left click functionality')
-        l_left.grid(row=3, column=0, columnspan=3, sticky='ews')
+        # Set left click
+        l_left = tk.Label(master=page, text='Left click functionality', wraplength = 50)
+        l_left.grid(row=2, column=0, columnspan=1, sticky='ews')
         current_type_pre = tk.StringVar()
-        current_type_pre.set(self.settings.left_C[0])
-        l_left_menu_pre = tk.OptionMenu(page, current_type_pre, *self.settings.select_type_pressure, )
-        l_left_menu_pre.grid(row=4, column=1, columnspan=2)
+        current_type_pre.set(self.settings['leftC_pre'])
+        l_left_menu_pre = tk.OptionMenu(page, current_type_pre, *self.settings['pressure_type'],
+                                        command = lambda select: self.settings_update(select, 'pressure_type'))
+        l_left_menu_pre.grid(row=2, column=1, columnspan=1, sticky='ew')
         current_type_time = tk.StringVar()
-        current_type_time.set(self.settings.left_C[1])
-        l_left_menu_time = tk.OptionMenu(page, current_type_time, *self.settings.select_type_time)
-        l_left_menu_time.grid(row=4, column=2, columnspan=2)
+        current_type_time.set(self.settings['leftC_len'])
+        l_left_menu_time = tk.OptionMenu(page, current_type_time, *self.settings['length'],  command = lambda select: self.settings_update(select, 'length'))
+        l_left_menu_time.grid(row=2, column=2, columnspan=1, sticky='ew')
 
-        # Set Length of 'left click puff
-        l_left = tk.Label(master=page, text='Right click functionality')
-        l_left.grid(row=5, column=0, columnspan=3, sticky='ews')
+        # Set up right click
+        l_left = tk.Label(master=page, text='Right click functionality', wraplength = 50)
+        l_left.grid(row=3, column=0, columnspan=1, sticky='ews')
         current_type_r_pre = tk.StringVar()
-        current_type_r_pre.set(self.settings.right_C[0])
-        l_left_menu_r_pre = tk.OptionMenu(page, current_type_r_pre, *self.settings.select_type_pressure, )
-        l_left_menu_r_pre.grid(row=6, column=1, columnspan=2)
-        current_type_r_time = tk.StringVar()
-        current_type_r_time.set(self.settings.right_C[1])
-        l_left_menu_r_time = tk.OptionMenu(page, current_type_r_time, *self.settings.select_type_time)
-        l_left_menu_r_time.grid(row=6, column=2, columnspan=2)
+        current_type_r_pre.set(self.settings['rightC_pre'])
+        l_left_menu_r_pre = tk.OptionMenu(page, current_type_r_pre, *self.settings['pressure_type'], command=lambda select:self.settings_update(select,'rightC_pre'))
+        l_left_menu_r_pre.grid(row=3, column=1, columnspan=1, sticky='ew')
 
+        current_type_r_time = tk.StringVar()
+        current_type_r_time.set(self.settings['rightC_len'])
+        l_left_menu_r_time = tk.OptionMenu(page, current_type_r_time, *self.settings['length'], command=lambda select:self.settings_update(select,'rightC_len'))
+        l_left_menu_r_time.grid(row=3, column=2, columnspan=1, sticky='ew')
+        # Length of long
+        l_long_time = tk.Label(master=page, text='Length of Long pressure')
+        l_long_time .grid(row=4, column=0, columnspan=4, sticky='news')
+        l_tl_min = tk.Label(master=page, text='Min Range 0').grid(row=5, column=0, sticky='nes')
+        l_tl_max = tk.Label(master=page, text='100 Max Range').grid(row=5, column=3, sticky='nws')
+        slider_long_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        slider_long_time.set(self.settings['length_long'])  # update with settings value
+        slider_long_time.grid(row=5, column=1, columnspan=2, sticky='news')
+        slider_long_time.bind("<ButtonRelease>",
+                             lambda event: self.settings_update(slider_pressure.get(), 'length_long'))
+
+        # Length of short
+        l_long_time = tk.Label(master=page, text='Length of Short pressure')
+        l_long_time .grid(row=6, column=0, columnspan=4, sticky='news')
+        l_tl_min = tk.Label(master=page, text='Min Range 0').grid(row=7, column=0, sticky='nes')
+        l_tl_max = tk.Label(master=page, text='100 Max Range').grid(row=7, column=3, sticky='nws')
+        slider_long_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        slider_long_time.set(self.settings['length_short'])  # update with settings value
+        slider_long_time.grid(row=7, column=1, columnspan=2, sticky='news')
+        slider_long_time.bind("<ButtonRelease>",
+                             lambda event: self.settings_update(slider_pressure.get(), 'length_short'))
         # Close Button
         btn_close_js = tk.Button(master=page, text='Close Sip & Puff Settings', command=lambda: page.destroy())
-        btn_close_js.grid(row=7, column=1, sticky='news')
+        btn_close_js.grid(row=8, column=0, columnspan = 4, sticky='news')
 
     def settings_update(self, value, name):
-        print('Paramter: %s \n Value: %d' % (name, value))
+        self.settings[name] = value
+        
 
     def move(self):
         # set up grid
@@ -222,6 +259,12 @@ class App:
     def uppdate_transcript(self, line):
         self.transcription.config(text=line)
 
+def save_changed_settings(filename, dict):
+    pass
+
+
+
+
 
 class Mode():
     # class that creates mode objects
@@ -249,36 +292,27 @@ class Mode_list():
         return list(self.dictionary.keys())
 
 
-class Setting():
-    """class that contains all the settings"""
+def setting_config(settings_current, filename):
+    """sets up a dict contains all the settings"""
+    file = open(filename, 'r', encoding='utf-8')
+    line = file.readlines()
+    for set in range(0, len(line)-1, 1):
+        l = line[set].strip('\n')
+        type = l.split(';')
+        for i in range(0, len(type)-1, 2):
+            settings_current[type[i]] = type[i+1]
+    # create list
+    l = line[-1].strip('\n')
+    type = l.split(';')
 
-    def __init__(self, filename):
-        self.settings = self.setup(filename)
-        # joy stick settings
-        self.deadzone = self.settings[0][1]
-        self.Xrange = self.settings[0][3]
-        self.Yrange = self.settings[0][5]
-        self.cursor_speed = self.settings[0][7]
-
-        # sip and puff settings
-        self.left_C = [self.settings[1][1], self.settings[1][2]]
-        self.right_C = [self.settings[1][4], self.settings[1][5]]
-        self.sens = self.settings[1][7]
-        self.select_type_time = [self.settings[2][3], self.settings[2][4]]
-        self.select_type_pressure = [self.settings[2][1], self.settings[2][2]]
-
-    def setup(self, setup_file):
-        file = open(setup_file, 'r', encoding='utf-8')
-        line = file.readlines()
-        settings_current = []
-        for set in line:
-            type = set.split(';')
-            settings_current.append(type)
-        file.close()
-        return settings_current
-
+    settings_current[type[3]] = [type[4], type[5]]
+    settings_current[type[0]] = [type[1], type[2]]
+    file.close()
+    return settings_current
 
 if __name__ == "__main__":
     modes = Mode_list('GUISetUp.txt')
-    settings = Setting('SettingsGUI.txt')
+    settings_current = {}
+    settings = setting_config(settings_current,'SettingsGUI.txt')
+    print (settings)
     app = App(modes.get_keys(), settings)
