@@ -1,14 +1,13 @@
+int IUD = A1; // UD pin assignment
+int ILR = A0; // LR pin assignment
 
-int IUD = A1;
-int ILR = A0;
-
-int UDRAW = 0;
-int LRRAW = 0;
-int UD = 0;
-int LR = 0;
-int UDMID = 0;
-int LRMID = 0;
-byte payload[3];
+int UDRAW = 0; // raw UD data
+int LRRAW = 0; // raw LR data
+int UDMID = 0; // midpoint of UD (start pos)
+int LRMID = 0; // midpoint of LR (start pos)
+int UD = 0; // final UD data
+int LR = 0; // final LR data
+byte payload[3]; // payload of 3 bytes
 
 void setup() {
   joystick_setup();
@@ -29,22 +28,24 @@ void joystick_loop(){
   
   UDRAW = analogRead(IUD);
   LRRAW = analogRead(ILR);
-  UD = UDRAW - UDMID; // 
-  LR = LRRAW - LRMID;
-  LR = LR * 4;
-  byte UD1 = highByte(UD);
-  byte UD0 = lowByte(UD);
-  byte LR1 = highByte(LR);
-  byte LR0 = lowByte(LR);
+  UD = UDRAW - UDMID; // calculates UD displacement from centre
+  LR = LRRAW - LRMID; // calculates LR displacement from centre
+  LR = LR * 4; // purely for byte packing purposes
+  
+  // turns out int is 2 bytes in Arduino so below works well
+  byte UD1 = highByte(UD); // MSB of UD
+  byte UD0 = lowByte(UD); // LSB of UD
+  byte LR1 = highByte(LR); // MSB of LR
+  byte LR0 = lowByte(LR); // LSB of LR
 
-  payload[0] = UD0; // first 8 bits of UD
-  payload[1] = (UD1 & 0x2) + LR0; // first 6 bits of LR and last 2 bits of UD
-  payload[2] = 0xA0 + (0xF & LR1); // hex A (1010) to represent joystick data and last 4 bits of LR
+  payload[2] = UD0; // first 8 bits of UD
+  payload[1] = (UD1 & 0x3) + LR0; // first 6 bits of LR and last 2 bits of UD
+  payload[0] = 0xA0 + (0xF & LR1); // hex A (1010) to represent joystick data and last 4 bits of LR
 
   // to decode :
-  // UD = payload[0] + ((payload[1] & 0x2) << 8)
-  // LR = (payload[1] & 0xFC) + ((payload[2] & 0xF) << 8)
-  // Identifier = ((payload[2] >> 4) & 0xA)) this should give you 0xA
+  // UD = payload[2] + ((payload[1] & 0x3) << 8)
+  // LR = (payload[1] & 0xFC) + ((payload[0] & 0xF) << 8)
+  // Identifier = ((payload[0] >> 4) & 0xA)) this should give you 0xA
   
   Serial.print("UD: ");
   Serial.print(UD);
