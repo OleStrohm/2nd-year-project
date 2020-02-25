@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="fa5bb81d-e923-4ee5-9b12-e46f2ca4b780" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="1YCx6CHcc9WexYfjkJZK1qRrtY8" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../mouse_move/mouse_move.py" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <module name="mouse_move" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="mouse_move" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+      <module name="mouse_move" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../mouse_move" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../mouse_move/mouse_move.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <module name="mouse_move" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <module name="mouse_move" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <module name="mouse_move" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fa5bb81d-e923-4ee5-9b12-e46f2ca4b780" name="Default Changelist" comment="" />
+      <created>1582460200423</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1582460200423</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="312" y="207" width="1089" height="705" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1582645369688">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state x="312" y="207" width="1089" height="705" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1714.1103@0.0.1714.1103" timestamp="1582645369688" />
+    <state x="592" y="314" key="EnvironmentVariablesDialog" timestamp="1582460407526">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state x="592" y="314" key="EnvironmentVariablesDialog/0.0.1714.1103@0.0.1714.1103" timestamp="1582460407526" />
+    <state x="637" y="307" key="FileChooserDialogImpl" timestamp="1582645365455">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state x="637" y="307" key="FileChooserDialogImpl/0.0.1714.1103@0.0.1714.1103" timestamp="1582645365455" />
+    <state width="1693" height="302" key="GridCell.Tab.0.bottom" timestamp="1582645379435">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state width="1693" height="302" key="GridCell.Tab.0.bottom/0.0.1714.1103@0.0.1714.1103" timestamp="1582645379435" />
+    <state width="1693" height="302" key="GridCell.Tab.0.center" timestamp="1582645379435">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state width="1693" height="302" key="GridCell.Tab.0.center/0.0.1714.1103@0.0.1714.1103" timestamp="1582645379435" />
+    <state width="1693" height="302" key="GridCell.Tab.0.left" timestamp="1582645379434">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state width="1693" height="302" key="GridCell.Tab.0.left/0.0.1714.1103@0.0.1714.1103" timestamp="1582645379434" />
+    <state width="1693" height="302" key="GridCell.Tab.0.right" timestamp="1582645379435">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state width="1693" height="302" key="GridCell.Tab.0.right/0.0.1714.1103@0.0.1714.1103" timestamp="1582645379435" />
+    <state width="1693" height="373" key="GridCell.Tab.1.bottom" timestamp="1582645379430">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state width="1693" height="373" key="GridCell.Tab.1.bottom/0.0.1714.1103@0.0.1714.1103" timestamp="1582645379430" />
+    <state width="1693" height="373" key="GridCell.Tab.1.center" timestamp="1582645379430">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state width="1693" height="373" key="GridCell.Tab.1.center/0.0.1714.1103@0.0.1714.1103" timestamp="1582645379430" />
+    <state width="1693" height="373" key="GridCell.Tab.1.left" timestamp="1582645379429">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state width="1693" height="373" key="GridCell.Tab.1.left/0.0.1714.1103@0.0.1714.1103" timestamp="1582645379429" />
+    <state width="1693" height="373" key="GridCell.Tab.1.right" timestamp="1582645379430">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state width="1693" height="373" key="GridCell.Tab.1.right/0.0.1714.1103@0.0.1714.1103" timestamp="1582645379430" />
+    <state x="366" y="194" key="SettingsEditor" timestamp="1582645323773">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state x="366" y="194" key="SettingsEditor/0.0.1714.1103@0.0.1714.1103" timestamp="1582645323773" />
+    <state x="558" y="375" key="com.intellij.ide.util.TipDialog" timestamp="1582644423557">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state x="558" y="375" key="com.intellij.ide.util.TipDialog/0.0.1714.1103@0.0.1714.1103" timestamp="1582644423557" />
+    <state x="520" y="241" width="672" height="678" key="search.everywhere.popup" timestamp="1582645301066">
+      <screen x="0" y="0" width="1714" height="1103" />
+    </state>
+    <state x="520" y="241" width="672" height="678" key="search.everywhere.popup/0.0.1714.1103@0.0.1714.1103" timestamp="1582645301066" />
+  </component>
+</project>

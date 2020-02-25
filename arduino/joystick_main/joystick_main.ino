@@ -1,5 +1,5 @@
-int IUD = A1; // UD pin assignment
-int ILR = A0; // LR pin assignment
+int IUD = A5; // UD pin assignment
+int ILR = A4; // LR pin assignment
 
 int UDRAW = 0; // raw UD data
 int LRRAW = 0; // raw LR data
@@ -8,6 +8,7 @@ int LRMID = 0; // midpoint of LR (start pos)
 int UD = 0; // final UD data
 int LR = 0; // final LR data
 byte payload[3]; // payload of 3 bytes
+int data_delay = 100; // delay (in ms) of joystick data sent to computer
 
 void setup() {
   joystick_setup();
@@ -15,7 +16,7 @@ void setup() {
 
 void loop() {
   joystick_loop();
-  delay(500);
+  delay(data_delay);
 }
 
 void joystick_setup(){
@@ -28,9 +29,11 @@ void joystick_loop(){
   
   UDRAW = analogRead(IUD);
   LRRAW = analogRead(ILR);
-  UD = UDRAW - UDMID; // calculates UD displacement from centre
-  LR = LRRAW - LRMID; // calculates LR displacement from centre
-  LR = LR * 4; // purely for byte packing purposes
+//  UD = UDRAW - UDMID; // calculates UD displacement from centre
+//  LR = LRRAW - LRMID; // calculates LR displacement from centre
+  UD = UDRAW;
+  LR = LRRAW;
+  LR = LR * 4; // purely for byte packing purposes (left shift by 2)
   
   // turns out int is 2 bytes in Arduino so below works well
   byte UD1 = highByte(UD); // MSB of UD
@@ -47,14 +50,14 @@ void joystick_loop(){
   // LR = (payload[1] & 0xFC) + ((payload[0] & 0xF) << 8)
   // Identifier = ((payload[0] >> 4) & 0xA)) this should give you 0xA
   
-  Serial.print("UD: ");
-  Serial.print(UD);
-  Serial.print(" LR: ");
-  Serial.println(LR/4);
-  Serial.println(" Bytes: ");
-  Serial.println(payload[2]);
-  Serial.println(payload[1]);
-  Serial.println(payload[0]);
+//  Serial.print("UD: ");
+//  Serial.print(UD);
+//  Serial.print(" LR: ");
+//  Serial.println(LR/4);
+//  Serial.println(" Bytes: ");
+//  Serial.println(payload[2]);
+//  Serial.println(payload[1]);
+//  Serial.println(payload[0]);
 
   Serial.write(payload, 3);
   
