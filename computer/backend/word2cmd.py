@@ -27,7 +27,7 @@ def find_cmd(trans, cmd_dict):
 
 
 def main():
-    cmd_format = load_cmds ('cmds_format.txt')
+    cmd_format = load_cmds ('cmds_formatting.txt')
     print (cmd_format)
     test_string = input('Enter test string:')
     find_cmd(test_string, cmd_format)
