@@ -99,6 +99,9 @@ class ResumableMicrophoneStream:
         self._buff.put(None)
         self._audio_interface.terminate()
 
+    def flush(self):
+        self._buff.queue.clear()
+
     def _fill_buffer(self, in_data, *args, **kwargs):
         """Continuously collect data from the audio stream, into the buffer."""
 
@@ -175,27 +178,27 @@ class SpeechToTextController:
             interim_results=True)
         self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
         self.mutex = Lock()
+        self.running = False
 
     def start(self):
-        t = Thread(target=self.listen, args=(self,))
-        t.start()
+        if not self.running:
+            self.running = True
+            t = Thread(target=self.listen, args=(self,))
+            t.start()
 
     def listen(self, _):
         """start bidirectional streaming from microphone input to speech API"""
         with self.mic_manager as stream:
-            stream.closed = False
+            stream.flush()
             print("Started listening")
-            while not stream.closed:
+            while self.running:
                 stream.audio_input = []
                 audio_generator = stream.generator()
 
-                requests = (speech.types.StreamingRecognizeRequest(
-                    audio_content=content) for content in audio_generator)
+                requests = (speech.types.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
 
-                responses = self.client.streaming_recognize(self.streaming_config,
-                                                            requests)
+                responses = self.client.streaming_recognize(self.streaming_config, requests)
 
-                # Now, put the transcription responses to use.
                 self.listen_print_loop(responses, stream)
 
                 if stream.result_end_time > 0:
@@ -252,10 +255,8 @@ class SpeechToTextController:
             stream.result_end_time = int((result_seconds * 1000)
                                          + (result_nanos / 1000000))
 
-            corrected_time = (stream.result_end_time - stream.bridging_offset
-                              + (STREAMING_LIMIT * stream.restart_counter))
-            # Display interim results, but with a carriage return at the end of the
-            # line, so subsequent lines will overwrite them.
+            # corrected_time = (stream.result_end_time - stream.bridging_offset
+            #                   + (STREAMING_LIMIT * stream.restart_counter))
 
             if result.is_final:
                 self.callback(transcript, True)
@@ -270,7 +271,7 @@ class SpeechToTextController:
     def stop(self):
         self.mutex.acquire()
         try:
-            self.mic_manager.closed = True
+            self.running = False
         finally:
             self.mutex.release()
 
@@ -280,6 +281,7 @@ def callback_displayer(text, final):
         print("Final: " + text)
     else:
         print("Potential: " + text)
+
 
 if __name__ == '__main__':
     controller = SpeechToTextController(callback_displayer)
