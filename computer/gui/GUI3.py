@@ -418,7 +418,6 @@ def setting_config(filename):
                 tmp_l.append(l[i])
             settings_current[l[0]] = tmp_l
 
-
     return settings_current
 
 if __name__ == "__main__":
