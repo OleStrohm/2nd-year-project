@@ -1,5 +1,6 @@
 import keyboard as kb
 import mouse
+import math
 
 
 class Command:
@@ -61,13 +62,26 @@ class Text(Command):
     def execute(self):
         kb.write(self.text)
 
+mx = mouse.get_position()[0]
+my = mouse.get_position()[1]
 
 def move(angle, speed):
-    for i in range(10):
-        mouse.move(1, 1, absolute=False, duration=(1 / speed))
+    global mx, my
+    mx += math.cos(angle / 180.0 * math.pi) * speed
+    my += math.sin(angle / 180.0 * math.pi) * speed
+    mouse.move(mx, my, duration=0.05)
 
+
+def on_press(event):
+    keys = [72, 75, 77, 80]
+    if event.scan_code in keys:
+        print(event.scan_code)
+        return True
 
 if __name__ == "__main__":
-    cmd = Macro("test", [Left(5), Text("teext")])
-    cmd.execute()
+    # move (90.0, 100)
+    # cmd = Macro("test", [Left(5), Text("teext"), Right(2), Text("more")])
+    kb.on_press(on_press)
+    kb.wait("escape")
+    #cmd.execute()
 # ---------------------------------S------------------------------------
