@@ -29,6 +29,7 @@ def find_cmd(trans, cmd_dict):
             else:
                 print('key: ' + line[i] + '\nvalue: ' + cmd_dict[line[i]])
                 cmd = cmd_dict[line[i]]
+    return cmd
 
 def main():
     cmd_format = load_cmds ('cmds_format.txt')
