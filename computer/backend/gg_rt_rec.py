@@ -85,12 +85,10 @@ class ResumableMicrophoneStream:
         )
 
     def __enter__(self):
-
         self.closed = False
         return self
 
     def __exit__(self, type, value, traceback):
-
         self._audio_stream.stop_stream()
         self._audio_stream.close()
         self.closed = True
@@ -166,21 +164,16 @@ class ResumableMicrophoneStream:
 class SpeechToTextController:
 
     def __init__(self, callback):
+        """Callback is the function used whenever the speech-to-text receives a possible or final transcription.
+           callback takes two parameters: text (the transcription), final(A boolean saying whether the guess is a finalized guess.
+           The callback should be wrapped with a mutex"""
         self.callback = callback
-        self.client = speech.SpeechClient()
-        self.config = speech.types.RecognitionConfig(
-            encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
-            sample_rate_hertz=SAMPLE_RATE,
-            language_code='en-US',
-            max_alternatives=1)
-        self.streaming_config = speech.types.StreamingRecognitionConfig(
-            config=self.config,
-            interim_results=True)
-        self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
+        self.mic_manager = None
         self.mutex = Lock()
         self.running = False
 
     def start(self):
+        """Starts the speech to text recognition on a separate thread"""
         if not self.running:
             self.running = True
             t = Thread(target=self.listen, args=(self,))
@@ -188,16 +181,26 @@ class SpeechToTextController:
 
     def listen(self, _):
         """start bidirectional streaming from microphone input to speech API"""
+        client = speech.SpeechClient()
+        config = speech.types.RecognitionConfig(
+            encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
+            sample_rate_hertz=SAMPLE_RATE,
+            language_code='en-US',
+            max_alternatives=1)
+        streaming_config = speech.types.StreamingRecognitionConfig(
+            config=config,
+            interim_results=True)
+        self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
         with self.mic_manager as stream:
             stream.flush()
             print("Started listening")
-            while self.running:
+            while not stream.closed:
                 stream.audio_input = []
                 audio_generator = stream.generator()
 
                 requests = (speech.types.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
 
-                responses = self.client.streaming_recognize(self.streaming_config, requests)
+                responses = client.streaming_recognize(streaming_config, requests)
 
                 self.listen_print_loop(responses, stream)
 
@@ -255,26 +258,22 @@ class SpeechToTextController:
             stream.result_end_time = int((result_seconds * 1000)
                                          + (result_nanos / 1000000))
 
-            # corrected_time = (stream.result_end_time - stream.bridging_offset
-            #                   + (STREAMING_LIMIT * stream.restart_counter))
-
             if result.is_final:
                 self.callback(transcript, True)
-
                 stream.is_final_end_time = stream.result_end_time
                 stream.last_transcript_was_final = True
             else:
                 self.callback(transcript, False)
-
                 stream.last_transcript_was_final = False
 
     def stop(self):
         self.mutex.acquire()
         try:
             self.running = False
+            if self.mic_manager is not None:
+                self.mic_manager.closed = True
         finally:
             self.mutex.release()
-
 
 def callback_displayer(text, final):
     if final:
