@@ -87,7 +87,7 @@ class App:
         btn_stt = tk.Button(self.main_menu, text='Speach to Text', command = lambda: self.settings_speech2text())
         btn_stt.grid(row=2, column=1, sticky='news')
 
-        btn_def = tk.Button(self.main_menu, text='Window Options')
+        btn_def = tk.Button(self.main_menu, text='Window Options', command = lambda: self.settings_gui())
         btn_def.grid(row=2, column=2, sticky='news')
 
         btn_factory = tk.Button(self.main_menu, text='Factory Settings', command = lambda: self.factory_settings())
@@ -269,6 +269,12 @@ class App:
         btn_close_stt = tk.Button(master = page, text='Close Speech to Text Settings', command=lambda: page.destroy())
         btn_close_stt.grid(row=9, column=0, columnspan=4, sticky='news')
 
+    def settings_gui(self):
+        gui_page = tk.messagebox.showinfo(title = 'Window options', message = 'Window options are still under development')
+
+
+
+
     def settings_update(self, value, name):
         self.settings[name] = value
         self.changes = True;
@@ -295,7 +301,7 @@ class App:
         self.btn_hide.grid(row=3, column=0, sticky='news')
 
         # hide the trascription
-        self.transcription.grid_forget()
+        self.l_transcription.grid_forget()
 
     def add_cmd(self, mode, key, cmd):
         print(str(mode) + str(key) + str(cmd))
@@ -336,7 +342,7 @@ class App:
 
     def uppdate_transcript(self, line):
                 if (self.transcription):
-                    self.transcription.config(text=line)
+                    self.l_transcription.config(text=line)
 
     def off_transcript(self, btn):
         self.l_transcription.config(text='Transcription is off')
