@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.messagebox
 
 
+
 class App:
     """ sets up the main window and all the graphics """
 
@@ -16,7 +17,8 @@ class App:
             self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
         self.root.attributes('-topmost', True)
         self.settings = settings
-        self.changes = False;
+        self.changes = False
+        self.modes = modes
 
         # frame
         # self.panel_frame = Frame(self.root, )
@@ -53,7 +55,7 @@ class App:
         # mode menu
         self.current_mode = tk.StringVar()
         self.current_mode.set(modes[0])
-        self.m_mode = tk.OptionMenu(self.root, self.current_mode, *modes, command=self.change_mode)
+        self.m_mode = tk.OptionMenu(self.root, self.current_mode, *self.modes, command=self.change_mode)
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
         self.root.mainloop()
@@ -80,7 +82,7 @@ class App:
         btn_snp = tk.Button(self.main_menu, text='Sip & Puff', command=lambda: self.settings_sip())
         btn_snp.grid(row=1, column=2, sticky='news')
 
-        btn_stt = tk.Button(self.main_menu, text='Speach to Text')
+        btn_stt = tk.Button(self.main_menu, text='Speach to Text', command = lambda: self.settings_speech2text())
         btn_stt.grid(row=2, column=1, sticky='news')
 
         btn_def = tk.Button(self.main_menu, text='Window Options')
@@ -219,6 +221,52 @@ class App:
         btn_close_js = tk.Button(master=page, text='Close Sip & Puff Settings', command=lambda: page.destroy())
         btn_close_js.grid(row=8, column=0, columnspan = 4, sticky='news')
 
+    def settings_speech2text(self):
+        page = tk.Toplevel(self.main_menu)
+        page.title('Settings Speech to text')
+
+        l_onoff = tk.Label(master=page, text="Transcription on/off")
+        l_onoff.grid(row = 0, column = 0, columnspan = 2)
+
+        btn_on = tk.Button(master=page, text="ON")
+        btn_on.grid(row=1, column = 0, columnspan = 2)
+
+        l_cmd_add_mode = tk.Label(master = page, text = 'Name of mode:')
+        l_cmd_add_mode.grid(row = 2, column = 0)
+
+        txt_box_mode = tk.Entry(master = page)
+        txt_box_mode.grid(row  = 2, column = 1)
+
+        btn_create_mode = tk.Button(master = page, text = 'Add new mode', command = lambda: self.create_mode(txt_box_mode.get()))
+        btn_create_mode.grid(row = 3, column = 0, columnspan = 2)
+
+        l_cmd_mode = tk.Label(master = page, text = 'Add cmd to mode:')
+        l_cmd_mode.grid(row = 4, column = 0, columnspan = 2)
+
+        current_modes = tk.StringVar()
+        current_modes.set(self.modes[0])
+        m_select_modeadd = tk.OptionMenu(page, current_modes, *self.modes)
+        m_select_modeadd.grid(row=5, column=0, columnspan = 2)
+
+        l_cmd_key_word = tk.Label(master=page, text='Key word to cmd:')
+        l_cmd_key_word.grid(row=6, column=0)
+
+        txt_key_word = tk.Entry(master = page)
+        txt_key_word.grid (row = 6, column = 1)
+
+        l_cmd = tk.Label(master=page, text='Desired cmd:')
+        l_cmd.grid(row=7, column=0)
+
+        txt_cmd = tk.Entry(master = page)
+        txt_cmd.grid (row = 7, column = 1)
+
+        btn_addmode = tk.Button(master = page, text = 'Add command', command = lambda: self.add_cmd(current_modes.get(),txt_key_word.get(), txt_cmd.get()))
+        btn_addmode.grid(row =8, column = 0, columnspan = 2)
+
+        # Close Button
+        btn_close_stt = tk.Button(master = page, text='Close Speech to Text Settings', command=lambda: page.destroy())
+        btn_close_stt.grid(row=9, column=0, columnspan=4, sticky='news')
+
     def settings_update(self, value, name):
         self.settings[name] = value
         self.changes = True;
@@ -247,6 +295,15 @@ class App:
         # hide the trascription
         self.transcription.grid_forget()
 
+    def add_cmd(self, mode, key, cmd):
+        print(str(mode) + str(key) + str(cmd))
+        #save_added (mode, key, cmd)
+
+    def create_mode(self, name):
+        file = open(str(name)+'.txt', 'r', encoding= 'utf-8')
+        file.close()
+
+
     def panel_view(self):
         # resize and move window
         self.root.geometry('%dx%d+0+%d' % (self.width, 0.1 * self.height, (1 - 0.2) * self.height))
@@ -273,6 +330,7 @@ class App:
         self.root.iconify()
 
     def change_mode(self, select):
+        self.current_mode = select;
         print('Updtate mode to %s' % select)
 
     def uppdate_transcript(self, line):
@@ -300,7 +358,10 @@ def save_changed_settings(filename, dict):
             file.write('\n')
     file.close()
 
-
+def save_add_cmd(mode, key, value):
+    file = open('cmds_%s'%mode, 'a', encoding = 'utf-8')
+    file.write(key + ',' + str(value) +'\n' )
+    file.close()
 
 
 class Mode():
@@ -334,6 +395,7 @@ def setting_config(filename):
     settings_current = {}
     file = open(filename, 'r', encoding='utf-8')
     lines = file.readlines()
+    file.close()
     for line in lines:
         l = line.strip('\n')
         l = l.split(';')
@@ -345,7 +407,7 @@ def setting_config(filename):
                 tmp_l.append(l[i])
             settings_current[l[0]] = tmp_l
 
-    file.close()
+
     return settings_current
 
 if __name__ == "__main__":
