@@ -1,26 +1,52 @@
+int sensorPin = A3;
+int sensorValue = 0;
+int samplePeriod = 10;
+int numSamples = 10;
+int samples[15];
+unsigned long previousMillis = 0;
+int samplecounter = 0;
+byte payload_snp[2];
+byte sL;
+byte sH;
+
 int IUD = A5; // UD pin assignment
 int ILR = A4; // LR pin assignment
-
 int UDRAW = 0; // raw UD data
 int LRRAW = 0; // raw LR data
-int UDMID = 0; // midpoint of UD (start pos)
-int LRMID = 0; // midpoint of LR (start pos)
+//int UDMID = 0; // midpoint of UD (start pos)
+//int LRMID = 0; // midpoint of LR (start pos)
 int UD = 0; // final UD data
 int LR = 0; // final LR data
 byte payload_j[3]; // payload of 3 bytes
 int data_delay = 100; // delay (in ms) of joystick data sent to computer
 
 void setup() {
-  joystick_setup();
+  Serial.begin(9600);
 }
 
 void loop() {
-  joystick_loop();
-  delay(data_delay);
+  // put your main code here, to run repeatedly:
+    snploop();
 }
 
-void joystick_setup(){
-  Serial.begin(9600);
+void snploop(){
+   unsigned long currentMillis = millis();
+
+  if((currentMillis - previousMillis) >= samplePeriod){
+    samplePressure();
+    previousMillis = currentMillis;
+  }
+
+  if(samplecounter == numSamples){
+    sensorValue = sampleAverage();
+    sL = lowByte(sensorValue);
+    sH = highByte(sensorValue);
+    payload_snp[0] = 0xB0 + sH;
+    payload_snp[1] = sL;
+    Serial.write(payload_snp,2);
+    joystick_loop();
+    samplecounter = 0;
+  }
 }
 
 void joystick_loop(){
@@ -47,7 +73,7 @@ void joystick_loop(){
   // UD = payload[2] + ((payload[1] & 0x3) << 8)
   // LR = (payload[1] & 0xFC) + ((payload[0] & 0xF) << 8)
   // Identifier = ((payload[0] >> 4) & 0xA)) this should give you 0xA
-  
+//  
 //  Serial.print("UD: ");
 //  Serial.print(UD);
 //  Serial.print(" LR: ");
@@ -59,4 +85,18 @@ void joystick_loop(){
 
   Serial.write(payload_j, 3);
   
+}
+
+void samplePressure(){
+  samples[samplecounter] = analogRead(sensorPin);
+  samplecounter++;
+}
+
+int sampleAverage(){
+  int average=0;
+  for(int i = 0; i < numSamples; i++){
+    average += samples[i];
+  }
+  average = average/numSamples;
+  return average;
 }
