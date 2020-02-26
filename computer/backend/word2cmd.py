@@ -18,7 +18,7 @@ def load_cmds(filename):
 
 def find_cmd(trans, cmd_dict):
     line = trans.split()
-    for i in range(0,len(line)-1):
+    for i in range(len(line)):
         if cmd_dict.get(line[i]):
             print('key: ' + line[i] + '\nvalue: ' + cmd_dict[line[i]])
             if i<len(line) and (cmd_dict[line[i]] == 'multi'): # if it is a a cmd that requires multiple words the first word has been designated the value multi to check for a second
