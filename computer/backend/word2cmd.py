@@ -18,13 +18,17 @@ def load_cmds(filename):
 
 def find_cmd(trans, cmd_dict):
     line = trans.split()
+    cmd = 'empty'
     for i in range(len(line)):
         if cmd_dict.get(line[i]):
             print('key: ' + line[i] + '\nvalue: ' + cmd_dict[line[i]])
             if i<len(line) and (cmd_dict[line[i]] == 'multi'): # if it is a a cmd that requires multiple words the first word has been designated the value multi to check for a second
                 if cmd_dict.get(line[i]+line[i+1]):
                     print('cmd word' + line[i] +' ' + line[i+1] + 'cmd: ' + cmd_dict[line[i]+line[i+1]] )
-
+                    cmd = cmd_dict[line[i]+line[i+1]]
+            else:
+                print('key: ' + line[i] + '\nvalue: ' + cmd_dict[line[i]])
+                cmd = cmd_dict[line[i]]
 
 def main():
     cmd_format = load_cmds ('cmds_format.txt')
