@@ -1,99 +1,72 @@
-int sensorPin = A3;
-int sensorValue = 0;
+int IUD_pin = A5; // UD pin assignment
+int ILR_pin = A4; // LR pin assignment
+int pressure_sensor_pin = A3; // pressure sensor pin assignment
+int baud_rate = 9600; // serial baud rate *MUST MATCH IN PYTHON*
+
+int sensorValue = 0; // pressure sensor data
+int UD = 0; // UD data
+int LR = 0; // LR data
+unsigned long currentMillis; // current time
+unsigned long previousMillis = 0; // previous time
 int samplePeriod = 10;
 int numSamples = 10;
-int samples[15];
-unsigned long previousMillis = 0;
+int samples[numSamples]; // array to store samples
 int samplecounter = 0;
-byte payload_snp[2];
-byte sL;
-byte sH;
-
-int IUD = A5; // UD pin assignment
-int ILR = A4; // LR pin assignment
-int UDRAW = 0; // raw UD data
-int LRRAW = 0; // raw LR data
-//int UDMID = 0; // midpoint of UD (start pos)
-//int LRMID = 0; // midpoint of LR (start pos)
-int UD = 0; // final UD data
-int LR = 0; // final LR data
-byte payload_j[3]; // payload of 3 bytes
-int data_delay = 100; // delay (in ms) of joystick data sent to computer
+byte sL, sH, UD0, UD1, LR0, LR1; // bytes for encoding
+byte snp_payload[2]; // pressure payload
+byte joystick_payload[3]; // joystick payload
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(baud_rate);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-    snploop();
-}
 
-void snploop(){
-   unsigned long currentMillis = millis();
+  currentMillis = millis();
 
   if((currentMillis - previousMillis) >= samplePeriod){
-    samplePressure();
-    previousMillis = currentMillis;
+   samplePressure();
+   previousMillis = currentMillis;
   }
 
-  if(samplecounter == numSamples){
-    sensorValue = sampleAverage();
-    sL = lowByte(sensorValue);
-    sH = highByte(sensorValue);
-    payload_snp[0] = 0xB0 + sH;
-    payload_snp[1] = sL;
-    Serial.write(payload_snp,2);
-    joystick_loop();
-    samplecounter = 0;
+  if(samplecounter == numSamples){ // total 'delay' will be samplePeriod * numSamples
+   sensorValue = sampleAverage();
+   sL = lowByte(sensorValue);
+   sH = highByte(sensorValue);
+   snp_payload[0] = 0xB0 + sH;
+   snp_payload[1] = sL;
+   Serial.write(snp_payload,2);
+   joystick_loop();
+   samplecounter = 0;
   }
 }
 
 void joystick_loop(){
-  
-  UDRAW = analogRead(IUD);
-  LRRAW = analogRead(ILR);
-//  UD = UDRAW - UDMID; // calculates UD displacement from centre
-//  LR = LRRAW - LRMID; // calculates LR displacement from centre
-  UD = UDRAW;
-  LR = LRRAW;
+
+  UD = analogRead(IUD_pin);
+  LR = analogRead(ILR_pin);
   LR = LR * 4; // purely for byte packing purposes (left shift by 2)
-  
+
   // turns out int is 2 bytes in Arduino so below works well
-  byte UD1 = highByte(UD); // MSB of UD
-  byte UD0 = lowByte(UD); // LSB of UD
-  byte LR1 = highByte(LR); // MSB of LR
-  byte LR0 = lowByte(LR); // LSB of LR
+  UD1 = highByte(UD); // MSB of UD
+  UD0 = lowByte(UD); // LSB of UD
+  LR1 = highByte(LR); // MSB of LR
+  LR0 = lowByte(LR); // LSB of LR
+  joystick_payload[0] = 0xA0 + (0xF & LR1); // hex A (1010) to represent joystick data and last 4 bits of LR
+  joystick_payload[1] = LR0 + (UD1 & 0x3); // first 6 bits of LR and last 2 bits of UD
+  joystick_payload[2] = UD0; // low byte of UD
 
-  payload_j[2] = UD0; // first 8 bits of UD
-  payload_j[1] = (UD1 & 0x3) + LR0; // first 6 bits of LR and last 2 bits of UD
-  payload_j[0] = 0xA0 + (0xF & LR1); // hex A (1010) to represent joystick data and last 4 bits of LR
+  Serial.write(joystick_payload, 3);
 
-  // to decode :
-  // UD = payload[2] + ((payload[1] & 0x3) << 8)
-  // LR = (payload[1] & 0xFC) + ((payload[0] & 0xF) << 8)
-  // Identifier = ((payload[0] >> 4) & 0xA)) this should give you 0xA
-//  
-//  Serial.print("UD: ");
-//  Serial.print(UD);
-//  Serial.print(" LR: ");
-//  Serial.println(LR/4);
-//  Serial.println(" Bytes: ");
-//  Serial.println(payload[2]);
-//  Serial.println(payload[1]);
-//  Serial.println(payload[0]);
-
-  Serial.write(payload_j, 3);
-  
 }
 
 void samplePressure(){
-  samples[samplecounter] = analogRead(sensorPin);
+  samples[samplecounter] = analogRead(pressure_sensor_pin);
   samplecounter++;
 }
 
 int sampleAverage(){
-  int average=0;
+  int average = 0;
   for(int i = 0; i < numSamples; i++){
     average += samples[i];
   }
