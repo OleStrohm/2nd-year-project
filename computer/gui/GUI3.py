@@ -18,7 +18,9 @@ class App:
         self.root.attributes('-topmost', True)
         self.settings = settings
         self.changes = False
-        self.modes = modes
+        self.modes = list(modes.keys())
+        self.transcription = modes[self.modes[0]].transcription
+
 
         # frame
         # self.panel_frame = Frame(self.root, )
@@ -47,14 +49,14 @@ class App:
         self.btn_settings['command'] = lambda: self.settings_start()
         self.btn_settings.grid(row=0, column=5, sticky='nsew')
         # Transcription setup as a label
-        self.transcription = tk.Label(self.root, text='Transcript runs here', bg='black', fg='white', anchor='nw',
+        self.l_transcription = tk.Label(self.root, text='Transcript runs here', bg='black', fg='white', anchor='nw',
                                       height=2)
         # self.transcription.config(wraplength = ) potentially needs to be set to ensure
-        self.transcription.grid(row=0, column=2, sticky='nsew')
+        self.l_transcription.grid(row=0, column=2, sticky='nsew')
 
         # mode menu
         self.current_mode = tk.StringVar()
-        self.current_mode.set(modes[0])
+        self.current_mode.set(self.modes[0])
         self.m_mode = tk.OptionMenu(self.root, self.current_mode, *self.modes, command=self.change_mode)
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
@@ -85,7 +87,7 @@ class App:
         btn_stt = tk.Button(self.main_menu, text='Speach to Text', command = lambda: self.settings_speech2text())
         btn_stt.grid(row=2, column=1, sticky='news')
 
-        btn_def = tk.Button(self.main_menu, text='Window Options')
+        btn_def = tk.Button(self.main_menu, text='Window Options', command = lambda: self.settings_gui())
         btn_def.grid(row=2, column=2, sticky='news')
 
         btn_factory = tk.Button(self.main_menu, text='Factory Settings', command = lambda: self.factory_settings())
@@ -228,7 +230,7 @@ class App:
         l_onoff = tk.Label(master=page, text="Transcription on/off")
         l_onoff.grid(row = 0, column = 0, columnspan = 2)
 
-        btn_on = tk.Button(master=page, text="ON")
+        btn_on = tk.Button(master=page, text="ON", command = lambda: self.off_transcript(btn_on))
         btn_on.grid(row=1, column = 0, columnspan = 2)
 
         l_cmd_add_mode = tk.Label(master = page, text = 'Name of mode:')
@@ -267,6 +269,12 @@ class App:
         btn_close_stt = tk.Button(master = page, text='Close Speech to Text Settings', command=lambda: page.destroy())
         btn_close_stt.grid(row=9, column=0, columnspan=4, sticky='news')
 
+    def settings_gui(self):
+        gui_page = tk.messagebox.showinfo(title = 'Window options', message = 'Window options are still under development')
+
+
+
+
     def settings_update(self, value, name):
         self.settings[name] = value
         self.changes = True;
@@ -293,16 +301,15 @@ class App:
         self.btn_hide.grid(row=3, column=0, sticky='news')
 
         # hide the trascription
-        self.transcription.grid_forget()
+        self.l_transcription.grid_forget()
 
     def add_cmd(self, mode, key, cmd):
         print(str(mode) + str(key) + str(cmd))
-        #save_added (mode, key, cmd)
+        save_add_cmd (mode, key, cmd)
 
     def create_mode(self, name):
-        file = open(str(name)+'.txt', 'r', encoding= 'utf-8')
+        file = open(str(name)+'.txt', 'w+', encoding= 'utf-8')
         file.close()
-
 
     def panel_view(self):
         # resize and move window
@@ -334,8 +341,18 @@ class App:
         print('Updtate mode to %s' % select)
 
     def uppdate_transcript(self, line):
-        self.transcription.config(text=line)
+                if (self.transcription):
+                    self.l_transcription.config(text=line)
 
+    def off_transcript(self, btn):
+        self.l_transcription.config(text='Transcription is off')
+        self.transcription = False
+        btn.config(text = 'OFF', command = lambda: self.on_transcript(btn))
+
+    def on_transcript(self, btn):
+        self.transcription = True
+        self.l_transcription.config(text='Transcription is on')
+        btn.config(text='ON', command=lambda: self.off_transcript(btn))
 
     def factory_settings(self):
         factory_msg = tk.messagebox.askokcancel(title = 'Reset to factory settings', message = 'Do you wish to reset the app to factory settings?\n All your personalised settings will be lost.')
@@ -359,7 +376,7 @@ def save_changed_settings(filename, dict):
     file.close()
 
 def save_add_cmd(mode, key, value):
-    file = open('cmds_%s'%mode, 'a', encoding = 'utf-8')
+    file = open('cmds_%s.txt'%mode, 'a', encoding = 'utf-8')
     file.write(key + ',' + str(value) +'\n' )
     file.close()
 
@@ -368,26 +385,20 @@ class Mode():
     # class that creates mode objects
     def __init__(self, name, transcription, menu_pos):
         self.name = name
-        self.transcription = transcription
+        self.transcription = bool(transcription)
         self.menu_pos = menu_pos
 
 
-class Mode_list():
-    def __init__(self, filename):
-        self.setup_file = filename
-        self.dictionary = {}
-        self.setup()
+def mode_dict_set_up(filename):
+    mode_dict = {}
+    file = open(filename, 'r', encoding='utf-8')
+    line = file.readlines()
+    for mode in line:
+        name, transcript, track_file = mode.split(';')
+        mode_dict[name] = (Mode(name, transcript, track_file))
+    file.close()
 
-    def setup(self):
-        file = open(self.setup_file, 'r', encoding='utf-8')
-        line = file.readlines()
-        for mode in line:
-            name, transcript, track_file = mode.split(';')
-            self.dictionary[name] = (Mode(name, transcript, track_file))
-        file.close()
-
-    def get_keys(self):
-        return list(self.dictionary.keys())
+    return mode_dict
 
 
 def setting_config(filename):
@@ -407,10 +418,9 @@ def setting_config(filename):
                 tmp_l.append(l[i])
             settings_current[l[0]] = tmp_l
 
-
     return settings_current
 
 if __name__ == "__main__":
-    modes = Mode_list('GUISetUp.txt')
+    modes = mode_dict_set_up('GUISetUp.txt')
     settings = setting_config('SettingsGUI.txt')
-    app = App(modes.get_keys(), settings)
+    app = App(modes, settings)

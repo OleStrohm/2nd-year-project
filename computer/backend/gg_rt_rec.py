@@ -25,9 +25,11 @@ Example usage:
 
 # [START speech_transcribe_infinite_streaming]
 
+import keyboard as kb
+
 import time
-import re
 import sys
+from threading import Thread, Lock
 
 # uses result_end_time currently only avaialble in v1p1beta, will be in v1 soon
 from google.cloud import speech_v1p1beta1 as speech
@@ -83,12 +85,10 @@ class ResumableMicrophoneStream:
         )
 
     def __enter__(self):
-
         self.closed = False
         return self
 
     def __exit__(self, type, value, traceback):
-
         self._audio_stream.stop_stream()
         self._audio_stream.close()
         self.closed = True
@@ -96,6 +96,9 @@ class ResumableMicrophoneStream:
         # streaming_recognize method will not block the process termination.
         self._buff.put(None)
         self._audio_interface.terminate()
+
+    def flush(self):
+        self._buff.queue.clear()
 
     def _fill_buffer(self, in_data, *args, **kwargs):
         """Continuously collect data from the audio stream, into the buffer."""
@@ -125,7 +128,7 @@ class ResumableMicrophoneStream:
                                             self.bridging_offset) / chunk_time)
 
                     self.bridging_offset = (round((
-                        len(self.last_audio_input) - chunks_from_ms)
+                                                          len(self.last_audio_input) - chunks_from_ms)
                                                   * chunk_time))
 
                     for i in range(chunks_from_ms, len(self.last_audio_input)):
@@ -158,131 +161,130 @@ class ResumableMicrophoneStream:
             yield b''.join(data)
 
 
-def listen_print_loop(responses, stream):
-    """Iterates through server responses and prints them.
-    The responses passed is a generator that will block until a response
-    is provided by the server.
-    Each response may contain multiple results, and each result may contain
-    multiple alternatives; for details, see https://goo.gl/tjCPAU.  Here we
-    print only the transcription for the top alternative of the top result.
-    In this case, responses are provided for interim results as well. If the
-    response is an interim one, print a line feed at the end of it, to allow
-    the next result to overwrite it, until the response is a final one. For the
-    final one, print a newline to preserve the finalized transcription.
-    """
+class SpeechToTextController:
 
-    for response in responses:
+    def __init__(self, callback):
+        """Callback is the function used whenever the speech-to-text receives a possible or final transcription.
+           callback takes two parameters: text (the transcription), final(A boolean saying whether the guess is a finalized guess.
+           The callback should be wrapped with a mutex"""
+        self.callback = callback
+        self.mic_manager = None
+        self.mutex = Lock()
+        self.running = False
 
-        if get_current_time() - stream.start_time > STREAMING_LIMIT:
-            stream.start_time = get_current_time()
-            break
+    def start(self):
+        """Starts the speech to text recognition on a separate thread"""
+        if not self.running:
+            self.running = True
+            t = Thread(target=self.listen, args=(self,))
+            t.start()
 
-        if not response.results:
-            continue
+    def listen(self, _):
+        """start bidirectional streaming from microphone input to speech API"""
+        client = speech.SpeechClient()
+        config = speech.types.RecognitionConfig(
+            encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
+            sample_rate_hertz=SAMPLE_RATE,
+            language_code='en-US',
+            max_alternatives=1)
+        streaming_config = speech.types.StreamingRecognitionConfig(
+            config=config,
+            interim_results=True)
+        self.mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
+        with self.mic_manager as stream:
+            stream.flush()
+            print("Started listening")
+            while not stream.closed:
+                stream.audio_input = []
+                audio_generator = stream.generator()
 
-        result = response.results[0]
+                requests = (speech.types.StreamingRecognizeRequest(audio_content=content) for content in audio_generator)
 
-        if not result.alternatives:
-            continue
+                responses = client.streaming_recognize(streaming_config, requests)
 
-        transcript = result.alternatives[0].transcript
+                self.listen_print_loop(responses, stream)
 
-        result_seconds = 0
-        result_nanos = 0
+                if stream.result_end_time > 0:
+                    stream.final_request_end_time = stream.is_final_end_time
+                stream.result_end_time = 0
+                stream.last_audio_input = []
+                stream.last_audio_input = stream.audio_input
+                stream.audio_input = []
+                stream.restart_counter = stream.restart_counter + 1
 
-        if result.result_end_time.seconds:
-            result_seconds = result.result_end_time.seconds
+                if not stream.last_transcript_was_final:
+                    sys.stdout.write('\n')
+                stream.new_stream = True
+        print("Finished listening")
 
-        if result.result_end_time.nanos:
-            result_nanos = result.result_end_time.nanos
+    def listen_print_loop(self, responses, stream):
+        """Iterates through server responses and prints them.
+        The responses passed is a generator that will block until a response
+        is provided by the server.
+        Each response may contain multiple results, and each result may contain
+        multiple alternatives; for details, see https://goo.gl/tjCPAU.  Here we
+        print only the transcription for the top alternative of the top result.
+        In this case, responses are provided for interim results as well. If the
+        response is an interim one, print a line feed at the end of it, to allow
+        the next result to overwrite it, until the response is a final one. For the
+        final one, print a newline to preserve the finalized transcription.
+        """
 
-        stream.result_end_time = int((result_seconds * 1000)
-                                     + (result_nanos / 1000000))
+        for response in responses:
 
-        corrected_time = (stream.result_end_time - stream.bridging_offset
-                          + (STREAMING_LIMIT * stream.restart_counter))
-        # Display interim results, but with a carriage return at the end of the
-        # line, so subsequent lines will overwrite them.
-
-        if result.is_final:
-
-            sys.stdout.write(GREEN)
-            sys.stdout.write('\033[K')
-            sys.stdout.write(str(corrected_time) + ': ' + transcript + '\n')
-
-            stream.is_final_end_time = stream.result_end_time
-            stream.last_transcript_was_final = True
-
-            # Exit recognition if any of the transcribed phrases could be
-            # one of our keywords.
-            if re.search(r'\b(exit|quit)\b', transcript, re.I):
-                sys.stdout.write(YELLOW)
-                sys.stdout.write('Exiting...\n')
-                stream.closed = True
+            if get_current_time() - stream.start_time > STREAMING_LIMIT:
+                stream.start_time = get_current_time()
                 break
 
-        else:
-            sys.stdout.write(RED)
-            sys.stdout.write('\033[K')
-            sys.stdout.write(str(corrected_time) + ': ' + transcript + '\r')
+            if not response.results:
+                continue
 
-            stream.last_transcript_was_final = False
+            result = response.results[0]
 
+            if not result.alternatives:
+                continue
 
-def main():
-    """start bidirectional streaming from microphone input to speech API"""
+            transcript = result.alternatives[0].transcript
 
-    client = speech.SpeechClient()
-    config = speech.types.RecognitionConfig(
-        encoding=speech.enums.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=SAMPLE_RATE,
-        language_code='en-US',
-        max_alternatives=1)
-    streaming_config = speech.types.StreamingRecognitionConfig(
-        config=config,
-        interim_results=True)
+            result_seconds = 0
+            result_nanos = 0
 
-    mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
-    print(mic_manager.chunk_size)
-    sys.stdout.write(YELLOW)
-    sys.stdout.write('\nListening, say "Quit" or "Exit" to stop.\n\n')
-    sys.stdout.write('End (ms)       Transcript Results/Status\n')
-    sys.stdout.write('=====================================================\n')
+            if result.result_end_time.seconds:
+                result_seconds = result.result_end_time.seconds
 
-    with mic_manager as stream:
+            if result.result_end_time.nanos:
+                result_nanos = result.result_end_time.nanos
 
-        while not stream.closed:
-            sys.stdout.write(YELLOW)
-            sys.stdout.write('\n' + str(
-                STREAMING_LIMIT * stream.restart_counter) + ': NEW REQUEST\n')
+            stream.result_end_time = int((result_seconds * 1000)
+                                         + (result_nanos / 1000000))
 
-            stream.audio_input = []
-            audio_generator = stream.generator()
+            if result.is_final:
+                self.callback(transcript, True)
+                stream.is_final_end_time = stream.result_end_time
+                stream.last_transcript_was_final = True
+            else:
+                self.callback(transcript, False)
+                stream.last_transcript_was_final = False
 
-            requests = (speech.types.StreamingRecognizeRequest(
-                audio_content=content)for content in audio_generator)
+    def stop(self):
+        self.mutex.acquire()
+        try:
+            self.running = False
+            if self.mic_manager is not None:
+                self.mic_manager.closed = True
+        finally:
+            self.mutex.release()
 
-            responses = client.streaming_recognize(streaming_config,
-                                                   requests)
-
-            # Now, put the transcription responses to use.
-            listen_print_loop(responses, stream)
-
-            if stream.result_end_time > 0:
-                stream.final_request_end_time = stream.is_final_end_time
-            stream.result_end_time = 0
-            stream.last_audio_input = []
-            stream.last_audio_input = stream.audio_input
-            stream.audio_input = []
-            stream.restart_counter = stream.restart_counter + 1
-
-            if not stream.last_transcript_was_final:
-                sys.stdout.write('\n')
-            stream.new_stream = True
+def callback_displayer(text, final):
+    if final:
+        print("Final: " + text)
+    else:
+        print("Potential: " + text)
 
 
 if __name__ == '__main__':
-
-    main()
-
-# [END speech_transcribe_infinite_streaming]
+    controller = SpeechToTextController(callback_displayer)
+    kb.on_press_key(80, lambda e: controller.stop())
+    kb.on_press_key(75, lambda e: controller.start())
+    print("Starting")
+    kb.wait('escape')
