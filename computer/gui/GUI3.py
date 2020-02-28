@@ -282,7 +282,7 @@ class GUI:
 
     def settings_update(self, value, name):
         self.settings[name] = value
-        self.changes = True;
+        self.changes = True
 
     def move(self):
         # set up grid

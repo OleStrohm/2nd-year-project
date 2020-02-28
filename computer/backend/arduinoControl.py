@@ -17,10 +17,8 @@ class ArduinoController:
             if 'Arduino' in p[1]:
                 port = p[0]
 
-        if port == "":
-            sys.exit("Error: Arduino not found!")
-
-        self.ser = serial.Serial(port, 19200)
+        if port != "":
+            self.ser = serial.Serial(port, 19200)
 
 # variables set up
         self.puff_threshold = 600
