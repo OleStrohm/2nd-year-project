@@ -6,7 +6,11 @@
       <sourceFolder url="file://$MODULE_DIR$/computer/backend" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/computer/gui" isTestSource="false" />
     </content>
+<<<<<<< Updated upstream
     <orderEntry type="jdk" jdkName="Python 3.7" jdkType="Python SDK" />
+=======
+    <orderEntry type="jdk" jdkName="Python 3.8 (comms)" jdkType="Python SDK" />
+>>>>>>> Stashed changes
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">
