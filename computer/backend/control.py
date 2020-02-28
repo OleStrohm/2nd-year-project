@@ -1,5 +1,5 @@
 import keyboard as kb
-from gg_rt_rec import SpeechToTextController
+from speech_to_text import SpeechToTextController
 
 def stt_callback(text, final):
     if final:
