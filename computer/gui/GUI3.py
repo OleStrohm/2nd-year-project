@@ -1,12 +1,25 @@
 import tkinter as tk
 import tkinter.messagebox
 
+from threading import Thread
 
-
-class App:
+class GUI:
     """ sets up the main window and all the graphics """
 
     def __init__(self, modes, settings):
+        self.modes = modes
+        self.settings = settings
+
+        self.root = None
+        self.width = None
+        self.height = None
+        self.changes = False
+        self.transcription = modes[list(modes.keys())[0]].transcription
+
+        self.t = Thread(target=self.main_loop, args=(self,))
+        self.t.start()
+
+    def main_loop(self, _):
         # set up root window
         self.root = tk.Tk()
         self.root.title('App Name Menu')
@@ -16,11 +29,6 @@ class App:
             self.width, 0.1 * self.height,
             self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
         self.root.attributes('-topmost', True)
-        self.settings = settings
-        self.changes = False
-        self.modes = modes
-        self.transcription = modes[list(modes.keys())[0]].transcription
-
 
         # frame
         # self.panel_frame = Frame(self.root, )
@@ -423,4 +431,4 @@ if __name__ == "__main__":
     modes = mode_dict_set_up('GUISetUp.txt')
     print (modes['typing'].file_name)
     settings = setting_config('SettingsGUI.txt')
-    app = App(modes, settings)
+    app = GUI(modes, settings)

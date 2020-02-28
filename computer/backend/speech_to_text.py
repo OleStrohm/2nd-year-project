@@ -163,10 +163,11 @@ class ResumableMicrophoneStream:
 
 class SpeechToTextController:
 
-    def __init__(self, callback):
+    def __init__(self, app, callback):
         """Callback is the function used whenever the speech-to-text receives a possible or final transcription.
            callback takes two parameters: text (the transcription), final(A boolean saying whether the guess is a finalized guess.
            The callback should be wrapped with a mutex"""
+        self.app = app
         self.callback = callback
         self.mic_manager = None
         self.mutex = Lock()
@@ -230,41 +231,43 @@ class SpeechToTextController:
         final one, print a newline to preserve the finalized transcription.
         """
 
-        for response in responses:
+        try:
+            for response in responses:
+                if get_current_time() - stream.start_time > STREAMING_LIMIT:
+                    stream.start_time = get_current_time()
+                    break
 
-            if get_current_time() - stream.start_time > STREAMING_LIMIT:
-                stream.start_time = get_current_time()
-                break
+                if not response.results:
+                    continue
 
-            if not response.results:
-                continue
+                result = response.results[0]
 
-            result = response.results[0]
+                if not result.alternatives:
+                    continue
 
-            if not result.alternatives:
-                continue
+                transcript = result.alternatives[0].transcript
 
-            transcript = result.alternatives[0].transcript
+                result_seconds = 0
+                result_nanos = 0
 
-            result_seconds = 0
-            result_nanos = 0
+                if result.result_end_time.seconds:
+                    result_seconds = result.result_end_time.seconds
 
-            if result.result_end_time.seconds:
-                result_seconds = result.result_end_time.seconds
+                if result.result_end_time.nanos:
+                    result_nanos = result.result_end_time.nanos
 
-            if result.result_end_time.nanos:
-                result_nanos = result.result_end_time.nanos
+                stream.result_end_time = int((result_seconds * 1000)
+                                             + (result_nanos / 1000000))
 
-            stream.result_end_time = int((result_seconds * 1000)
-                                         + (result_nanos / 1000000))
-
-            if result.is_final:
-                self.callback(transcript, True)
-                stream.is_final_end_time = stream.result_end_time
-                stream.last_transcript_was_final = True
-            else:
-                self.callback(transcript, False)
-                stream.last_transcript_was_final = False
+                if result.is_final:
+                    self.callback(self.app, transcript, True)
+                    stream.is_final_end_time = stream.result_end_time
+                    stream.last_transcript_was_final = True
+                else:
+                    self.callback(self.app, transcript, False)
+                    stream.last_transcript_was_final = False
+        except Exception as e:
+            print(e)
 
     def stop(self):
         self.mutex.acquire()
