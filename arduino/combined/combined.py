@@ -3,7 +3,7 @@ import sys
 import serial.tools.list_ports
 import mouse
 import time
-from threading import Thread, Lock
+from threading import Thread
 from math import floor
 import keyboard as kb
 
@@ -20,11 +20,11 @@ class ArduinoController:
         if port == "":
             sys.exit("Error: Arduino not found!")
 
-        self.ser = serial.Serial(port, 9600)
+        self.ser = serial.Serial(port, 19200)
 
 # variables set up
         self.puff_threshold = 600
-        self.sip_threshold = 200
+        self.sip_threshold = 300
         self.short_puff_time = 0.15
         self.long_puff_time = 0.4
         self.short_sip_time = 0.2
@@ -34,17 +34,16 @@ class ArduinoController:
         self.drag = False
         self.is_holding = False
 
-        self.mouse_calibrate = False
+        self.mouse_calibrate = True
         self.mouse_dead_zone = 5
-        self.mouse_scaling_threshold = 200
+        self.mouse_scaling_threshold = 300
         self.mouse_lower_scaling = 10
         self.mouse_higher_scaling = 4
-        self.mouse_movement_duration = 0.075
+        self.mouse_movement_duration = 0.06
 
 # data loop
 
     def start(self):
-        self.mouse_calibrate = True
         t = Thread(target=self.data_loop, args=(self,))
         t.start()
 
@@ -78,8 +77,8 @@ class ArduinoController:
                     UD_mid = UD
                     LR_mid = LR
                     self.mouse_calibrate = False
-                LR = LR - LR_mid
-                UD = UD_mid - UD
+                LR = LR_mid - LR
+                UD = UD - UD_mid
                 if abs(UD) > self.mouse_scaling_threshold or abs(LR) > self.mouse_scaling_threshold:  # scaling decider
                     scaling = self.mouse_higher_scaling
                 else:
@@ -87,7 +86,6 @@ class ArduinoController:
                 UD_scaling = scaling / 2
                 if abs(UD) > self.mouse_dead_zone or abs(LR) > self.mouse_dead_zone:
                     mouse.move(LR/scaling, UD/UD_scaling, absolute=False, duration=self.mouse_movement_duration)
-                    print("moved")
 
                 # snp
 
