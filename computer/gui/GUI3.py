@@ -18,8 +18,8 @@ class App:
         self.root.attributes('-topmost', True)
         self.settings = settings
         self.changes = False
-        self.modes = list(modes.keys())
-        self.transcription = modes[self.modes[0]].transcription
+        self.modes = modes
+        self.transcription = modes[list(modes.keys())[0]].transcription
 
 
         # frame
@@ -56,8 +56,8 @@ class App:
 
         # mode menu
         self.current_mode = tk.StringVar()
-        self.current_mode.set(self.modes[0])
-        self.m_mode = tk.OptionMenu(self.root, self.current_mode, *self.modes, command=self.change_mode)
+        self.current_mode.set(list(self.modes.keys())[0])
+        self.m_mode = tk.OptionMenu(self.root, self.current_mode, *list(self.modes.keys()), command=self.change_mode)
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
         self.root.mainloop()
@@ -246,8 +246,8 @@ class App:
         l_cmd_mode.grid(row = 4, column = 0, columnspan = 2)
 
         current_modes = tk.StringVar()
-        current_modes.set(self.modes[0])
-        m_select_modeadd = tk.OptionMenu(page, current_modes, *self.modes)
+        current_modes.set(self.current_mode.get())
+        m_select_modeadd = tk.OptionMenu(page, current_modes, *list(self.modes.keys()))
         m_select_modeadd.grid(row=5, column=0, columnspan = 2)
 
         l_cmd_key_word = tk.Label(master=page, text='Key word to cmd:')
@@ -271,9 +271,6 @@ class App:
 
     def settings_gui(self):
         gui_page = tk.messagebox.showinfo(title = 'Window options', message = 'Window options are still under development')
-
-
-
 
     def settings_update(self, value, name):
         self.settings[name] = value
@@ -304,12 +301,14 @@ class App:
         self.l_transcription.grid_forget()
 
     def add_cmd(self, mode, key, cmd):
+        filename = self.modes[mode].file_name
         print(str(mode) + str(key) + str(cmd))
-        save_add_cmd (mode, key, cmd)
+        save_add_cmd (filename, key, cmd)
 
     def create_mode(self, name):
-        file = open(str(name)+'.txt', 'w+', encoding= 'utf-8')
+        file = open('cmd_'+str(name)+'.txt', 'w+', encoding= 'utf-8')
         file.close()
+        self.modes[name] = Mode(name, True, 'cmd_'+str(name)+'.txt')
 
     def panel_view(self):
         # resize and move window
@@ -375,18 +374,18 @@ def save_changed_settings(filename, dict):
             file.write('\n')
     file.close()
 
-def save_add_cmd(mode, key, value):
-    file = open('cmds_%s.txt'%mode, 'a', encoding = 'utf-8')
+def save_add_cmd(filename_mode, key, value):
+    file = open(filename_mode, 'a', encoding = 'utf-8')
     file.write(key + ',' + str(value) +'\n' )
     file.close()
 
 
 class Mode():
     # class that creates mode objects
-    def __init__(self, name, transcription, menu_pos):
+    def __init__(self, name, transcription, file):
         self.name = name
         self.transcription = bool(transcription)
-        self.menu_pos = menu_pos
+        self.file_name = file
 
 
 def mode_dict_set_up(filename):
@@ -422,5 +421,6 @@ def setting_config(filename):
 
 if __name__ == "__main__":
     modes = mode_dict_set_up('GUISetUp.txt')
+    print (modes['typing'].file_name)
     settings = setting_config('SettingsGUI.txt')
     app = App(modes, settings)

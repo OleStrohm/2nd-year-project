@@ -7,7 +7,7 @@ int UDMID = 0; // midpoint of UD (start pos)
 int LRMID = 0; // midpoint of LR (start pos)
 int UD = 0; // final UD data
 int LR = 0; // final LR data
-byte payload[3]; // payload of 3 bytes
+byte payload_j[3]; // payload of 3 bytes
 int data_delay = 100; // delay (in ms) of joystick data sent to computer
 
 void setup() {
@@ -21,8 +21,6 @@ void loop() {
 
 void joystick_setup(){
   Serial.begin(9600);
-  UDMID = analogRead(IUD);
-  LRMID = analogRead(ILR); 
 }
 
 void joystick_loop(){
@@ -41,9 +39,9 @@ void joystick_loop(){
   byte LR1 = highByte(LR); // MSB of LR
   byte LR0 = lowByte(LR); // LSB of LR
 
-  payload[2] = UD0; // first 8 bits of UD
-  payload[1] = (UD1 & 0x3) + LR0; // first 6 bits of LR and last 2 bits of UD
-  payload[0] = 0xA0 + (0xF & LR1); // hex A (1010) to represent joystick data and last 4 bits of LR
+  payload_j[2] = UD0; // first 8 bits of UD
+  payload_j[1] = (UD1 & 0x3) + LR0; // first 6 bits of LR and last 2 bits of UD
+  payload_j[0] = 0xA0 + (0xF & LR1); // hex A (1010) to represent joystick data and last 4 bits of LR
 
   // to decode :
   // UD = payload[2] + ((payload[1] & 0x3) << 8)
@@ -59,6 +57,6 @@ void joystick_loop(){
 //  Serial.println(payload[1]);
 //  Serial.println(payload[0]);
 
-  Serial.write(payload, 3);
+  Serial.write(payload_j, 3);
   
 }

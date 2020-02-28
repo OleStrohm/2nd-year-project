@@ -1,20 +1,26 @@
 int sensorPin = A3;
-double sensorValue = 0;
-byte samplePeriod = 10;
+int sensorValue = 0;
+int samplePeriod = 10;
 int numSamples = 15;
 int samples[15];
 unsigned long previousMillis = 0;
-byte samplecounter = 0;
+int samplecounter = 0;
+byte payload_snp[2];
+byte sL;
+byte sH;
 
 void setup() {
   // put your setup code here, to run once:
-
+  Serial.begin(9600);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  snploop()
+}
 
-  unsigned long currentMillis = millis();
+void snploop(){
+   unsigned long currentMillis = millis();
 
   if((currentMillis - previousMillis) >= samplePeriod){
     samplePressure();
@@ -23,9 +29,13 @@ void loop() {
 
   if(samplecounter == numSamples){
     sensorValue = sampleAverage();
+    sL = lowByte(sensorValue);
+    sH = highByte(sensorValue);
+    payload_snp[0] = 0xB0 + sH;
+    payload_snp[1] = sL;
+    Serial.write(payload_snp,2);
     samplecounter = 0;
   }
-
 }
 
 void samplePressure(){
@@ -33,9 +43,9 @@ void samplePressure(){
   samplecounter++;
 }
 
-double sampleAverage(){
-  double average;
-  for(byte i = 0; i < numSamples; i++){
+int sampleAverage(){
+  int average=0;
+  for(int i = 0; i < numSamples; i++){
     average += samples[i];
   }
   average = average/numSamples;
