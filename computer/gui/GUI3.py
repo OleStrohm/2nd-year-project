@@ -321,6 +321,7 @@ class GUI:
     def panel_view(self):
         # resize and move window
         self.root.geometry('%dx%d+0+%d' % (self.width, 0.1 * self.height, (1 - 0.2) * self.height))
+
         # frame
         # self.panel_frame = Frame(self.root, )
         self.root.grid_columnconfigure(0, weight=1)
@@ -337,7 +338,7 @@ class GUI:
         self.btn_move.config(text='Minimize', command=lambda: self.move())
         self.btn_hide.grid(row=0, column=4, sticky='nsew')
         self.btn_settings.grid(row=0, column=5, sticky='nsew')
-        self.transcription.grid(row=0, column=2, sticky='nsew')
+        self.l_transcription.grid(row=0, column=2, sticky='nsew')
 
     def hide(self):
         # hide window so that just the icon on the taskbar is left
@@ -348,8 +349,8 @@ class GUI:
         print('Updtate mode to %s' % select)
 
     def uppdate_transcript(self, line):
-                if (self.transcription):
-                    self.l_transcription.config(text=line)
+        if self.transcription:
+            self.l_transcription.config(text=line)
 
     def off_transcript(self, btn):
         self.l_transcription.config(text='Transcription is off')
