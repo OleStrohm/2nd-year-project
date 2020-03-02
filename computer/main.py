@@ -20,7 +20,7 @@ def stt_callback(app, text, final):
             # while hotkey != "empty":
             print(type(hotkey))
             print(type(unprocessed))
-            # kb.send(hotkey)
+            # kb.send(hotkey) THIS IS BROKEN
             #    hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, unprocessed)
 
             app.unprocessed = unprocessed
