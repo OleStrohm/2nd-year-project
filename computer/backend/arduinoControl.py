@@ -1,11 +1,10 @@
 import serial
-import sys
 import serial.tools.list_ports
 import mouse
-import time
-from threading import Thread
+from threading import Thread, Lock
 from math import floor
 import keyboard as kb
+from time import time, time_ns
 
 class ArduinoController:
 
@@ -37,15 +36,20 @@ class ArduinoController:
         self.mouse_calibrate = True
         self.mouse_dead_zone = 5
         self.mouse_scaling_threshold = 300
-        self.mouse_lower_scaling = 10
-        self.mouse_higher_scaling = 4
+        self.mouse_lower_scaling = 1
+        self.mouse_higher_scaling = 0.5
         self.mouse_movement_duration = 0.06
+
+
+        self.mutex = Lock()
+        self.mouse_controller = MouseController()
 
 # data loop
 
     def start(self):
         if self.ser is None:
             return
+        self.mouse_controller.start()
         t = Thread(target=self.data_loop, args=(self,))
         t.start()
 
@@ -87,18 +91,21 @@ class ArduinoController:
                     scaling = self.mouse_lower_scaling
                 UD_scaling = scaling / 2
                 if abs(UD) > self.mouse_dead_zone or abs(LR) > self.mouse_dead_zone:
-                    mouse.move(LR/scaling, UD/UD_scaling, absolute=False, duration=self.mouse_movement_duration)
+                    self.mouse_controller.set_direction(LR/scaling, UD/UD_scaling)
+                else:
+                    self.mouse_controller.set_direction(0, 0)
+                    # mouse.move(LR/scaling, UD/UD_scaling, absolute=False, duration=self.mouse_movement_duration)
 
                 # snp
 
                 if snp_data > self.puff_threshold and not self.above_threshold:
                     self.above_threshold = True
-                    start_time = time.time()
+                    start_time = time()
                 elif snp_data < self.sip_threshold and not self.below_threshold:
                     self.below_threshold = True
-                    start_time = time.time()
+                    start_time = time()
                 elif snp_data < self.puff_threshold and self.above_threshold:
-                    stop_time = time.time()
+                    stop_time = time()
                     elapsed = stop_time - start_time
                     if elapsed > self.long_puff_time:
                         print("Double click")
@@ -108,7 +115,7 @@ class ArduinoController:
                         mouse.click()
                     self.above_threshold = False
                 elif snp_data > self.sip_threshold and self.below_threshold:
-                    stop_time = time.time()
+                    stop_time = time()
                     elapsed = stop_time - start_time
                     if elapsed > self.long_sip_time:
                         if not self.drag:
@@ -125,6 +132,63 @@ class ArduinoController:
                         print("Right click")
                         mouse.right_click()
                         self.below_threshold = False
+
+    def set_bounds(self, w, h):
+        self.mutex.acquire()
+        try:
+            self.mouse_controller.set_bounds(w, h)
+        finally:
+            self.mutex.release()
+
+class MouseController:
+
+    def __init__(self):
+        self.x = mouse.get_position()[0]
+        self.y = mouse.get_position()[1]
+        self.dx = 0
+        self.dy = 0
+        self.width = self.x
+        self.height = self.y
+        self.running = True
+        self.mutex = Lock()
+        self.delay = 0.01
+
+    def set_bounds(self, w, h):
+        self.width = w
+        self.height = h
+
+    def start(self):
+        t = Thread(target=self.loop, args=(self,))
+        t.start()
+
+    def set_direction(self, dx, dy):
+        self.mutex.acquire()
+        try:
+            self.dx = dx
+            self.dy = dy
+        finally:
+            self.mutex.release()
+
+    def loop(self, _):
+        last_time = time_ns()
+        while self.running:
+            cur_time = time_ns()
+            dt = (cur_time - last_time) / 1000000000
+            if dt > self.delay:
+                last_time = cur_time
+                if self.dx != 0 or self.dy != 0:
+                    self.x = self.x + self.dx * dt
+                    self.y = self.y + self.dy * dt
+                    if self.x < 0:
+                        self.x = 0
+                    if self.x >= self.width:
+                        self.x = self.width
+                    if self.y < 0:
+                        self.y = 0
+                    if self.y > self.height:
+                        self.y = self.height
+                    mouse.move(self.x, self.y)
+
 
 if __name__ == "__main__":
     a = ArduinoController()

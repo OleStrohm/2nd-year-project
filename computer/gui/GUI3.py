@@ -7,9 +7,10 @@ from threading import Thread
 class GUI:
     """ sets up the main window and all the graphics """
 
-    def __init__(self, modes, settings, mode_file):
+    def __init__(self, modes, settings, mode_file, arduino):
         self.modes = modes
         self.settings = settings
+        self.arduino = arduino
 
         self.root = None
         self.width = None
@@ -25,8 +26,9 @@ class GUI:
         self.root.title('App Name Menu')
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
-        self.root.geometry('%dx%d+0+%d' % (
-            self.width, 0.1 * self.height,
+        self.arduino.set_bounds(self.width, self.height)
+        self.root.geometry('%dx%d+%d+%d' % (
+            self.width, 0.1 * self.height, 0,
             self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
         self.root.attributes('-topmost', True)
 
@@ -69,6 +71,10 @@ class GUI:
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
         self.root.protocol('WM_DELETE_WINDOW', self.close_program)
+
+        self.root.geometry('%dx%d+%d+%d' % (
+            self.width, 0.1 * self.height, 0,
+            self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
 
         self.root.mainloop()
 
