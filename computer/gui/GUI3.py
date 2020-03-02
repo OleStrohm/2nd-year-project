@@ -383,7 +383,7 @@ class GUI:
         self.root.iconify()
 
     def change_mode(self, select):
-        self.current_mode = select;
+        self.current_mode = select
         self.transcription = self.modes[select].trans
         print(self.transcription)
         if not self.transcription:
@@ -438,10 +438,11 @@ def save_add_cmd(filename_mode, key, value):
 
 class Mode():
     # class that creates mode objects
-    def __init__(self, name, transcription, file):
+    def __init__(self, name, transcription, file, echo):
         self.name = name
         self.trans = int(transcription)
         self.file_name = file
+        self.echo = int(echo)
 
 
 def mode_dict_set_up(filename):
@@ -449,9 +450,9 @@ def mode_dict_set_up(filename):
     file = open(filename, 'r', encoding='utf-8')
     line = file.readlines()
     for mode in line:
-        name, transcript, track_file = mode.split(';')
+        name, transcript, track_file, echo = mode.split(';')
         track_file = track_file.strip('\n')
-        mode_dict[name] = (Mode(name, transcript, track_file))
+        mode_dict[name] = (Mode(name, transcript, track_file,echo))
     file.close()
 
     return mode_dict

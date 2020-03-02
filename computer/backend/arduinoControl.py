@@ -19,6 +19,8 @@ class ArduinoController:
 
         if port != "":
             self.ser = serial.Serial(port, 19200)
+        else:
+            self.ser = None
 
 # variables set up
         self.puff_threshold = 600
@@ -42,6 +44,8 @@ class ArduinoController:
 # data loop
 
     def start(self):
+        if self.ser is None:
+            return
         t = Thread(target=self.data_loop, args=(self,))
         t.start()
 

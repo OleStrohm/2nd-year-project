@@ -2,6 +2,7 @@
   <dictionary name="stroh">
     <words>
       <w>arduino</w>
+      <w>hotkey</w>
       <w>nanos</w>
     </words>
   </dictionary>
