@@ -1,1 +1,7 @@
 increase,ctrl+[
+print,p
+print all,p
+print all,p
+print,
+p,
+printall,
