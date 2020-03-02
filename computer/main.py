@@ -15,6 +15,7 @@ def stt_callback(app, text, final):
             app.gui.uppdate_transcript(text)
             if app.gui.modes[app.gui.current_mode].echo:
                 print("Final: " + text)
+                # kb.write(text)
             else:
                 hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, app.unprocessed + " " + text)
                 while hotkey is not "empty":
@@ -40,7 +41,7 @@ class App:
         textToSpeech.start()
         modes = mode_dict_set_up('gui/GUISetUp.txt')
         settings = setting_config('gui/settingsGUI.txt')
-        self.gui = GUI(modes, settings, "")
+        self.gui = GUI(modes, settings, 'backend/cmds_format.txt')
         print("Initialized")
 
     def on_close(self):
