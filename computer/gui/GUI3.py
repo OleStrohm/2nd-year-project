@@ -17,6 +17,7 @@ class GUI:
         self.height = None
         self.changes = False
         self.transcription = modes[list(self.modes.keys())[0]].trans
+        self.current_mode = list(self.modes.keys())[0]
         self.t = Thread(target=self.main_loop, args=(self,))
         self.t.start()
 
@@ -65,16 +66,12 @@ class GUI:
         self.l_transcription.grid(row=0, column=2, sticky='nsew')
 
         # mode menu
-        self.current_mode = tk.StringVar()
-        self.current_mode.set(list(self.modes.keys())[0])
-        self.m_mode = tk.OptionMenu(self.root, self.current_mode, *list(self.modes.keys()), command=self.change_mode)
+        self.m_current_mode = tk.StringVar()
+        self.m_current_mode.set(self.current_mode)
+        self.m_mode = tk.OptionMenu(self.root, self.m_current_mode, *list(self.modes.keys()), command=self.change_mode)
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
         self.root.protocol('WM_DELETE_WINDOW', self.close_program)
-
-        self.root.geometry('%dx%d+%d+%d' % (
-            self.width, 0.1 * self.height, 0,
-            self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
 
         self.root.mainloop()
 

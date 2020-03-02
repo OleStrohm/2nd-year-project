@@ -1,4 +1,5 @@
 
+from threading import Lock
 import keyboard as kb
 
 class CommandController:
@@ -21,6 +22,9 @@ class CommandController:
     def find_cmd(self, name, trans):
         # if not self.modes.get(name):
         #     return "empty", trans
+
+        if trans == "":
+            return "empty", ""
 
         line = trans.split()
         cmd_dict = self.modes[name]
@@ -56,6 +60,8 @@ if __name__ == "__main__":
     print (controller.modes)
     test_string = input('Enter test string:')
     hotkey, unprocessed = controller.find_cmd("test_mode", test_string)
-    print(hotkey)
-    print(unprocessed)
-    # kb.press(hotkey)
+    mutex = Lock()
+    mutex.acquire()
+    kb.send(hotkey)
+    mutex.release()
+    kb.wait("esc")

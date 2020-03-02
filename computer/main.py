@@ -9,24 +9,24 @@ mutex = Lock()
 
 
 def stt_callback(app, text, final):
-    mutex.acquire()
-    try:
-        if final:
-            app.gui.uppdate_transcript(text)
-            if app.gui.modes[app.gui.current_mode].echo:
-                print("Final: " + text)
-                # kb.write(text)
-            else:
-                hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, app.unprocessed + " " + text)
-                while hotkey is not "empty":
-                    kb.press(hotkey)
-                    hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, unprocessed)
-                app.unprocessed = unprocessed
+    if final:
+        app.gui.uppdate_transcript(text)
+
+        if app.gui.modes[app.gui.current_mode].echo:
+            print("Final: " + text)
+            kb.write(text)
         else:
-            print("Potential: " + text)
-            app.gui.uppdate_transcript(text)
-    finally:
-        mutex.release()
+            hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, app.unprocessed + " " + text)
+            # while hotkey != "empty":
+            print(type(hotkey))
+            print(type(unprocessed))
+            # kb.send(hotkey)
+            #    hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, unprocessed)
+
+            app.unprocessed = unprocessed
+    else:
+        print("Potential: " + text)
+        app.gui.uppdate_transcript(text)
 
 
 class App:
