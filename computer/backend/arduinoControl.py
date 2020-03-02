@@ -31,7 +31,9 @@ class ArduinoController:
         self.above_threshold = False
         self.below_threshold = False
         self.drag = False
-        self.is_holding = False
+        self.sip = False
+        self.puff = False
+        self.double = False
 
         self.mouse_calibrate = True
         self.mouse_dead_zone = 5
@@ -94,11 +96,35 @@ class ArduinoController:
                     self.mouse_controller.set_direction(LR/scaling, UD/UD_scaling)
                 else:
                     self.mouse_controller.set_direction(0, 0)
-                    # mouse.move(LR/scaling, UD/UD_scaling, absolute=False, duration=self.mouse_movement_duration)
 
                 # snp
-
-                if snp_data > self.puff_threshold and not self.above_threshold:
+                if self.puff:
+                    if snp_data > self.puff_threshold and not self.above_threshold:
+                        self.above_threshold = True
+                        start_time = time()
+                        elapsed1 = time() - stop_time
+                        if elapsed1 < 0.4:
+                            print("double puff")
+                            self.double = True
+                    elif self.double:
+                        self.double = False
+                    else:
+                        print("single puff")
+                    self.puff = False
+                elif self.sip:
+                    if snp_data < self.sip_threshold and not self.below_threshold:
+                        self.below_threshold = True
+                        start_time = time()
+                        elapsed1 = time() - start_time
+                        if elapsed1 < 0.5:
+                            print("double sip")
+                            self.double = True
+                    elif self.double:
+                        self.double = False
+                    else:
+                        print("single sip")
+                    self.sip = False
+                elif snp_data > self.puff_threshold and not self.above_threshold:
                     self.above_threshold = True
                     start_time = time()
                 elif snp_data < self.sip_threshold and not self.below_threshold:
@@ -108,29 +134,24 @@ class ArduinoController:
                     stop_time = time()
                     elapsed = stop_time - start_time
                     if elapsed > self.long_puff_time:
-                        print("Double click")
-                        mouse.double_click()
+                        print("Long puff")
                     elif elapsed > self.short_puff_time:
-                        print("Left click")
-                        mouse.click()
+                        self.puff = True
                     self.above_threshold = False
                 elif snp_data > self.sip_threshold and self.below_threshold:
                     stop_time = time()
                     elapsed = stop_time - start_time
                     if elapsed > self.long_sip_time:
                         if not self.drag:
-                            print("Start dragging")
-                            mouse.press()
+                            print("Long sip activate")
                             self.drag = True
                             self.below_threshold = False
                         elif self.drag and self.below_threshold:
-                            print("Stop dragging")
-                            mouse.release()
+                            print("Long sip deactivate")
                             self.drag = False
                             self.below_threshold = False
                     elif elapsed > self.short_sip_time:
-                        print("Right click")
-                        mouse.right_click()
+                        self.sip = True
                         self.below_threshold = False
 
     def set_bounds(self, w, h):
@@ -194,4 +215,3 @@ if __name__ == "__main__":
     a = ArduinoController()
     a.mouse_calibrate = True
     a.data_loop("")
-    kb.wait("esc")
