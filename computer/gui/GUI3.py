@@ -41,11 +41,12 @@ class GUI:
         # frame
         # self.panel_frame = Frame(self.root, )
         self.root.grid_columnconfigure(0, weight=1)
-        self.root.grid_columnconfigure(1, weight=2)
-        self.root.grid_columnconfigure(2, weight=12)
-        self.root.grid_columnconfigure(3, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_columnconfigure(2, weight=1)
+        self.root.grid_columnconfigure(3, weight=12)
         self.root.grid_columnconfigure(4, weight=1)
         self.root.grid_columnconfigure(5, weight=1)
+        self.root.grid_columnconfigure(6, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         # Buttons
         # Menu buttons
@@ -55,19 +56,22 @@ class GUI:
 
         self.btn_move = tk.Button(self.root, text='Minimize')
         self.btn_move['command'] = lambda: self.move()
-        self.btn_move.grid(row=0, column=3, sticky='nsew')
+        self.btn_move.grid(row=0, column=4, sticky='nsew')
+
+        self.btn_transcription = tk.Button(self.root, text = 'something')
+        self.btn_transcription.grid(row=0, column = 2, sticky = 'news')
 
         self.btn_hide = tk.Button(self.root, text='Hide')
         self.btn_hide['command'] = lambda: self.hide()
-        self.btn_hide.grid(row=0, column=4, sticky='nsew')
+        self.btn_hide.grid(row=0, column=5, sticky='nsew')
 
         self.btn_settings = tk.Button(self.root, text='Settings')
         self.btn_settings['command'] = lambda: self.settings_start()
-        self.btn_settings.grid(row=0, column=5, sticky='nsew')
+        self.btn_settings.grid(row=0, column=6, sticky='nsew')
         # Transcription setup as a label
         self.l_transcription = tk.Label(self.root, text='Transcript runs here', bg='black', fg='white', anchor='nw',
                                         height=2, width = 80, wraplength = 0.6*self.width)
-        self.l_transcription.grid(row=0, column=2, sticky='nsew')
+        self.l_transcription.grid(row=0, column=3, sticky='nsew')
 
         # mode menu
         self.m_current_mode = tk.StringVar()
@@ -78,13 +82,16 @@ class GUI:
         self.m_mode.config(width = len(length))
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
+        if self.transcription:
+            self.on_transcript()
+        else:
+            self.off_transcript()
         self.root.protocol('WM_DELETE_WINDOW', self.close_program)
 
         self.root.mainloop()
 
     def close_program(self):
         print('Program should do complete exit')
-        mode_dict_update()
         self.root.destroy()
 
     def settings_start(self):
@@ -125,10 +132,10 @@ class GUI:
 
     def close_settings(self, name, window):
         if (self.changes):
-            default_msg = tk.messagebox.askokcancel(title='Update %s settings ' %name,
-                                                    message='Do you wish to make the settings changes to your default settings?')
+            default_msg = tk.messagebox.askyesno(title='Update %s settings ' %name,
+                                                    message='You have unsaved changes. Do you wish to make the settings changes to your default settings?')
             if default_msg:
-                self.save('SettingsGUI.txt', self.settings)
+                self.save('settings\SettingsGUI.txt', self.settings)
         window.destroy()
 
     def save(self, filename, dict_set):
@@ -180,7 +187,7 @@ class GUI:
 
         # Save Button
         btn_save_js = tk.Button(master=joy_page, text='Save Settings as Default',
-                                 command=lambda: self.save('SettingsGUI.txt', self.settings))
+                                 command=lambda: self.save('settings\SettingsGUI.txt', self.settings))
         btn_save_js.grid(row=8, column=0, columnspan = 3)
         # Close Button
         btn_close_js = tk.Button(master=joy_page, text='Close Joystick Settings', command=lambda: self.close_settings('Joystick', joy_page))
@@ -252,7 +259,7 @@ class GUI:
                               lambda event: self.settings_update(slider_pressure.get(), 'length_short'))
         # Save Button
         btn_save_sp = tk.Button(master=page, text='Save Settings as Default',
-                                command=lambda: self.save('SettingsGUI.txt', self.settings))
+                                command=lambda: self.save('settings\SettingsGUI.txt', self.settings))
         btn_save_sp.grid(row=8, column=1, columnspan=2)
 
         # Close Button
@@ -264,24 +271,48 @@ class GUI:
         page = tk.Toplevel(self.main_menu)
         page.title('Settings Speech to text')
         # Chose mode to start program with
-        l_startm = tk.Label(master=page, text="Set defulat mode at start up: ")
+        l_startm = tk.Label(master=page, text="Set default mode at start up: ")
         l_startm.grid(row=0, column=0, columnspan=2)
 
         start_mode = tk.StringVar()
         start_mode.set(self.settings['start_mode'])
-        m_select_start = tk.OptionMenu(page, start_mode, *list(self.modes.keys()))
+        m_select_start = tk.OptionMenu(page, start_mode, *list(self.modes.keys()), command = lambda select: self.settings_update(select, 'start_mode'))
         m_select_start.grid(row=1, column=0, columnspan=2)
 
         btn_set_start = tk.Button(master=page, text='Make default on Start up',
-                                  command=lambda:  self.settings_update(start_mode.get(), 'start_mode'))
+                                  command=lambda: self.save('settings\SettingsGUI.txt', self.settings))
         btn_set_start.grid(row=2, column=0, columnspan=2)
 
-        # Turn off and on transcription
-        l_onoff = tk.Label(master=page, text="Transcription on/off")
-        l_onoff.grid(row=3, column=0, columnspan=2)
+        # Selection to trun on/off
+        l_trans_onoff = tk.Label(master = page, text = 'Set transcription on/off')
+        l_trans_onoff.grid(row = 3, column = 1, columnspan = 2)
 
-        btn_on = tk.Button(master=page, text="ON", command=lambda: self.off_transcript(btn_on))
-        btn_on.grid(row=4, column=0, columnspan=2)
+        # make check box selection
+        check_boxes =tk.Frame(page)
+        check_boxes.grid(row = 4, column = 0,columnspan = 2, sticky = 'news')
+        modes_list = list(self.modes.keys())
+        index = list(range(len(modes_list)))
+        for i in range(0,len(self.modes.keys())):
+            index[i] = tk.IntVar()
+            print(self.modes[modes_list[i]].trans)
+            index[i].set(self.modes[modes_list[i]].trans)
+            tk.Checkbutton(master=check_boxes, text=modes_list[i], var  = index[i], command = lambda: self.update_trans(modes_list,index)).grid(row = i, column = 0)
+
+        btn_update_trans_set = tk.Button(master=page, text = 'Update transcription default', command = self.save_trans)
+        btn_update_trans_set.grid(row=5, column=0, columnspan=2)
+
+        #Advanced mode settings
+        btn_mode_adv = tk.Button(master=page, text = 'Advance Mode Settings', command = self.additional_mode)
+        btn_mode_adv.grid(row =6, column = 0, columnspan = 2)
+        # Close Button
+        btn_close_stt = tk.Button(master=page, text='Close Speech to Text Settings', command=lambda: self.save_sip(page))
+        btn_close_stt.grid(row=7, column=0, columnspan=2, sticky='news')
+
+        page.protocol('WM_DELETE_WINDOW', lambda: self.save_sip(page))
+
+    def additional_mode(self):
+        page = tk.Toplevel()
+        page.title('Advanced mode Settings')
 
         # Create New Mode
         l_cmd_add_mode = tk.Label(master=page, text='Name of mode:')
@@ -297,24 +328,6 @@ class GUI:
         btn_create_mode = tk.Button(master=page, text='Add new mode',
                                     command=lambda: self.create_mode(txt_box_mode.get(), new_trans, txt_box_mode))
         btn_create_mode.grid(row=7, column=0, columnspan=2)
-
-
-        # Set transcription on/off as default
-        l_trans_setting= tk.Label(master=page, text="Set transcription on/off default for mode: ")
-        l_trans_setting.grid(row=8, column=0, columnspan=2)
-
-        # make check box selection
-        check_boxes =tk.Frame(page)
-        check_boxes.grid(row = 9, column = 0,columnspan = 2, sticky = 'news')
-        modes_list = list(self.modes.keys())
-        index = list(range(len(modes_list)))
-        for i in range(0,len(self.modes.keys())):
-            index[i] = tk.IntVar()
-            index[i].set(self.modes[modes_list[i]].trans)
-            tk.Checkbutton(master=check_boxes, text=modes_list[i], var  = index[i]).grid(row = i, column = 0)
-
-        btn_update_trans_set = tk.Button(master=page, text = 'Update transcription default', command = lambda: self.update_trans(modes_list,index))
-        btn_update_trans_set.grid(row=10, column=0, columnspan=2)
 
         # Add new command to mode
         l_cmd_mode = tk.Label(master=page, text='Add cmd to mode:')
@@ -341,9 +354,18 @@ class GUI:
                                 command=lambda: self.add_cmd(current_modes.get(), txt_key_word.get(), txt_cmd.get(), txt_key_word, txt_cmd))
         btn_addmode.grid(row=15, column=0, columnspan=2)
 
-        # Close Button
-        btn_close_stt = tk.Button(master=page, text='Close Speech to Text Settings', command=lambda: page.destroy())
-        btn_close_stt.grid(row=16, column=0, columnspan=2, sticky='news')
+    def save_sip(self, window):
+        if self.changes:
+            msg = tk.messagebox.askyesno(title = 'Unsaved Changes', message = 'There are unsaved settings changes. Do you wish to save these to default settings?')
+            if msg:
+                self.changes = False
+                save_changed_settings('settings\SettingsGUI.txt', self.settings)
+                save_mode_settings('settings\GUISetUp.txt', self.modes)
+        window.destroy()
+
+    def save_trans(self):
+        save_mode_settings('settings\GUISetUp.txt', self.modes)
+        self.changes = False
 
     def settings_gui(self):
         gui_page = tk.messagebox.showinfo(title='Window options', message='Window options are still under development')
@@ -375,6 +397,7 @@ class GUI:
 
         # hide the trascription
         self.l_transcription.grid_forget()
+        self.btn_transcription.grid_forget()
 
     def add_cmd(self, mode, keys, cmd, entry_1, entry_2):
         keys = keys.split()
@@ -418,6 +441,7 @@ class GUI:
             else:
                 msg_cmd = tk.messagebox.showinfo('Too few characters in cmd',
                                                  'The cmd you have entred has too few characters. Please enter a cmd that')
+
     def save_cmd (self, mode, key, cmd):
         filename = self.modes[mode].file_name
         self.commands.modes[mode][key] = cmd
@@ -440,7 +464,6 @@ class GUI:
             msg_too_few = tk.messagebox.showinfo('Too few characters', 'The mode name you have entred has too few characters. ' +
                                                                        'Please give it the name of minimum one character in lenght')
 
-
     def panel_view(self):
         # resize and move window
         self.root.geometry('%dx%d+0+%d' % (self.width, 0.1 * self.height, (1 - 0.2) * self.height))
@@ -448,20 +471,22 @@ class GUI:
         # frame
         # self.panel_frame = Frame(self.root, )
         self.root.grid_columnconfigure(0, weight=1)
-        self.root.grid_columnconfigure(1, weight=3)
-        self.root.grid_columnconfigure(2, weight=24)
-        self.root.grid_columnconfigure(3, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_columnconfigure(2, weight=1)
+        self.root.grid_columnconfigure(3, weight=12)
         self.root.grid_columnconfigure(4, weight=1)
         self.root.grid_columnconfigure(5, weight=1)
+        self.root.grid_columnconfigure(6, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         # reroganize the buttons
         self.btn_exit.grid(row=0, column=0, sticky='nsew')
+        self.btn_transcription.grid(row = 0, column = 2, sticky = 'nsew')
         self.m_mode.grid(row=0, column=1, sticky='nsew')
-        self.btn_move.grid(row=0, column=3, sticky='nsew')
+        self.btn_move.grid(row=0, column=4, sticky='nsew')
         self.btn_move.config(text='Minimize', command=lambda: self.move())
-        self.btn_hide.grid(row=0, column=4, sticky='nsew')
-        self.btn_settings.grid(row=0, column=5, sticky='nsew')
-        self.l_transcription.grid(row=0, column=2, sticky='nsew')
+        self.btn_hide.grid(row=0, column=5, sticky='nsew')
+        self.btn_settings.grid(row=0, column=6, sticky='nsew')
+        self.l_transcription.grid(row=0, column=3, sticky='nsew')
 
     def hide(self):
         # hide window so that just the icon on the taskbar is left
@@ -482,27 +507,29 @@ class GUI:
         else:
             self.l_transcription.config(text='Transcription is off')
 
-    def off_transcript(self, btn):
+    def off_transcript(self):
         self.l_transcription.config(text='Transcription is off')
         self.transcription = False
-        btn.config(text='OFF', command=lambda: self.on_transcript(btn))
+        self.btn_transcription.config(text='OFF', command=lambda: self.on_transcript)
 
-    def on_transcript(self, btn):
+    def on_transcript(self):
         self.transcription = True
         self.l_transcription.config(text='Transcription is on')
-        btn.config(text='ON', command=lambda: self.off_transcript(btn))
+        self.btn_transcription.config(text='ON', command=lambda: self.off_transcript)
 
     def update_trans(self, mode_list,index):
+        print ('does this work')
+        self.changes = True
         for i in range(len(index)):
             self.modes[mode_list[i]].trans = index[i].get()
             print(str(mode_list[i]) + ';' + str(index[i].get()))
 
     def factory_settings(self):
-        factory_msg = tk.messagebox.askokcancel(title='Reset to factory settings',
+        factory_msg = tk.messagebox.askyesno(title='Reset to factory settings',
                                                 message='Do you wish to reset the app to factory settings?\n All your personalised settings will be lost.')
         if factory_msg:
             self.settings = setting_config('DefaultSettingsGUI.txt')
-            save_changed_settings('settingsGUI.txt', self.settings)
+            save_changed_settings('settings\sttingsGUI.txt', self.settings)
 
 
 def save_changed_settings(filename, dict_set):
@@ -548,8 +575,13 @@ def mode_dict_set_up(filename):
     return mode_dict
 
 
-def mode_dict_update():
-    pass
+def save_mode_settings(filename, modes_dict):
+    file = open(filename, 'w', encoding = 'utf-8')
+    for key in modes_dict:
+        mode = modes_dict[key]
+        file.write(mode.name + ';' + str(mode.trans) + ';' + mode.file_name + ';' + str(mode.echo) + '\n')
+    file.close()
+
 
 
 def setting_config(filename):
