@@ -7,17 +7,19 @@ from threading import Thread
 class GUI:
     """ sets up the main window and all the graphics """
 
-    def __init__(self, modes, settings, mode_file, arduino):
+    def __init__(self, modes, settings, arduino, cmd_dict):
         self.modes = modes
         self.settings = settings
+        self.cmd_dict = cmd_dict
         self.arduino = arduino
+
 
         self.root = None
         self.width = None
         self.height = None
         self.changes = False
-        self.transcription = modes[list(self.modes.keys())[0]].trans
-        self.current_mode = list(self.modes.keys())[0]
+        self.transcription = modes[self.settings['start_mode']].trans
+        self.current_mode = self.settings['start_mode']
         self.t = Thread(target=self.main_loop, args=(self,))
         self.t.start()
 
@@ -27,7 +29,7 @@ class GUI:
         self.root.title('App Name Menu')
         self.width = self.root.winfo_screenwidth()
         self.height = self.root.winfo_screenheight()
-        self.arduino.set_bounds(self.width, self.height)
+        #self.arduino.set_bounds(self.width, self.height)
         self.root.geometry('%dx%d+%d+%d' % (
             self.width, 0.1 * self.height, 0,
             self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
@@ -36,8 +38,8 @@ class GUI:
         # frame
         # self.panel_frame = Frame(self.root, )
         self.root.grid_columnconfigure(0, weight=1)
-        self.root.grid_columnconfigure(1, weight=3)
-        self.root.grid_columnconfigure(2, weight=24)
+        self.root.grid_columnconfigure(1, weight=2)
+        self.root.grid_columnconfigure(2, weight=12)
         self.root.grid_columnconfigure(3, weight=1)
         self.root.grid_columnconfigure(4, weight=1)
         self.root.grid_columnconfigure(5, weight=1)
@@ -61,14 +63,16 @@ class GUI:
         self.btn_settings.grid(row=0, column=5, sticky='nsew')
         # Transcription setup as a label
         self.l_transcription = tk.Label(self.root, text='Transcript runs here', bg='black', fg='white', anchor='nw',
-                                        height=2)
-        # self.transcription.config(wraplength = ) potentially needs to be set to ensure
+                                        height=2, width = 80, wraplength = 0.6*self.width)
         self.l_transcription.grid(row=0, column=2, sticky='nsew')
 
         # mode menu
         self.m_current_mode = tk.StringVar()
         self.m_current_mode.set(self.current_mode)
         self.m_mode = tk.OptionMenu(self.root, self.m_current_mode, *list(self.modes.keys()), command=self.change_mode)
+        length = max(list(self.modes.keys()), key=len)
+        print (length)
+        self.m_mode.config(width = len(length))
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
         self.root.protocol('WM_DELETE_WINDOW', self.close_program)
@@ -111,26 +115,22 @@ class GUI:
         btn_factory = tk.Button(self.main_menu, text='Factory Settings', command=lambda: self.factory_settings())
         btn_factory.grid(row=3, column=4, columnspan=1, sticky='es')
 
-        btn_save_default = tk.Button(self.main_menu, text='Save updated settings to Default',
-                                     command=lambda: self.save('SettingsGUI.txt', self.settings))
-        btn_save_default.grid(row=3, column=1, columnspan=2, sticky='ns')
-
-        btn_close = tk.Button(self.main_menu, text='Close settings', command=lambda: self.close_settings())
+        btn_close = tk.Button(self.main_menu, text='Close settings', command=self.main_menu.destroy)
         btn_close.grid(row=4, column=1, columnspan=2, sticky='s')
 
-        self.main_menu.protocol('WM_DELETE_WINDOW', self.close_settings)
+        #self.main_menu.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('all', self.main_menu))
 
-    def close_settings(self):
+    def close_settings(self, name, window):
         if (self.changes):
-            default_msg = tk.messagebox.askokcancel(title='Update settings',
+            default_msg = tk.messagebox.askokcancel(title='Update %s settings ' %name,
                                                     message='Do you wish to make the settings changes to your default settings?')
             if default_msg:
                 self.save('SettingsGUI.txt', self.settings)
-        self.main_menu.destroy()
+        window.destroy()
 
-    def save(self, filename, dict):
-        save_changed_settings(filename, dict)
-        self.changes = False;
+    def save(self, filename, dict_set):
+        save_changed_settings(filename, dict_set)
+        self.changes = False
 
     def settings_joy(self):
         joy_page = tk.Toplevel(self.main_menu)
@@ -175,9 +175,14 @@ class GUI:
         slider_speed.grid(row=7, column=1, columnspan=1, sticky='news')
         slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'dead_zone'))
 
+        # Save Button
+        btn_save_js = tk.Button(master=joy_page, text='Save Settings as Default',
+                                 command=lambda: self.save('SettingsGUI.txt', self.settings))
+        btn_save_js.grid(row=8, column=0, columnspan = 3)
         # Close Button
-        btn_close_js = tk.Button(master=joy_page, text='Close Joystick Settings', command=lambda: joy_page.destroy())
-        btn_close_js.grid(row=8, column=1, sticky='news')
+        btn_close_js = tk.Button(master=joy_page, text='Close Joystick Settings', command=lambda: self.close_settings('Joystick', joy_page))
+        btn_close_js.grid(row=9, column=0, columnspan = 3,sticky='news')
+        joy_page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Joystick', joy_page))
 
     def settings_sip(self):
         page = tk.Toplevel(self.main_menu)
@@ -242,9 +247,15 @@ class GUI:
         slider_long_time.grid(row=7, column=1, columnspan=2, sticky='news')
         slider_long_time.bind("<ButtonRelease>",
                               lambda event: self.settings_update(slider_pressure.get(), 'length_short'))
+        # Save Button
+        btn_save_sp = tk.Button(master=page, text='Save Settings as Default',
+                                command=lambda: self.save('SettingsGUI.txt', self.settings))
+        btn_save_sp.grid(row=8, column=1, columnspan=2)
+
         # Close Button
-        btn_close_js = tk.Button(master=page, text='Close Sip & Puff Settings', command=lambda: page.destroy())
-        btn_close_js.grid(row=8, column=0, columnspan=4, sticky='news')
+        btn_close_sp = tk.Button(master=page, text='Close Sip & Puff Settings', command=lambda: self.close_settings('Sip & Puff', page))
+        btn_close_sp.grid(row=9, column=0, columnspan=4, sticky='news')
+        page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Sip & Puff', page))
 
     def settings_speech2text(self):
         page = tk.Toplevel(self.main_menu)
@@ -254,60 +265,82 @@ class GUI:
         l_startm.grid(row=0, column=0, columnspan=2)
 
         start_mode = tk.StringVar()
-        start_mode.set(list(self.modes.keys())[0])
+        start_mode.set(self.settings['start_mode'])
         m_select_start = tk.OptionMenu(page, start_mode, *list(self.modes.keys()))
         m_select_start.grid(row=1, column=0, columnspan=2)
 
-        btn_set_start = tk.Button(master=page, text='Make defualt on Start up',
-                                  command=lambda: self.set_start(start_mode.get()))
+        btn_set_start = tk.Button(master=page, text='Make default on Start up',
+                                  command=lambda:  self.settings_update(start_mode.get(), 'start_mode'))
         btn_set_start.grid(row=2, column=0, columnspan=2)
 
-        # Turn off and on trascription
+        # Turn off and on transcription
         l_onoff = tk.Label(master=page, text="Transcription on/off")
         l_onoff.grid(row=3, column=0, columnspan=2)
 
         btn_on = tk.Button(master=page, text="ON", command=lambda: self.off_transcript(btn_on))
         btn_on.grid(row=4, column=0, columnspan=2)
 
-        # Create New Node
+        # Create New Mode
         l_cmd_add_mode = tk.Label(master=page, text='Name of mode:')
         l_cmd_add_mode.grid(row=5, column=0)
 
         txt_box_mode = tk.Entry(master=page)
         txt_box_mode.grid(row=5, column=1)
 
+        new_trans = tk.IntVar
+        check_trans = tk.Checkbutton(master=page, text='Transcription', var=new_trans)
+        check_trans.grid(row = 6, column = 0, columnspan = 2, sticky = 'w')
+
         btn_create_mode = tk.Button(master=page, text='Add new mode',
-                                    command=lambda: self.create_mode(txt_box_mode.get()))
-        btn_create_mode.grid(row=6, column=0, columnspan=2)
+                                    command=lambda: self.create_mode(txt_box_mode.get(), new_trans, txt_box_mode))
+        btn_create_mode.grid(row=7, column=0, columnspan=2)
+
+
+        # Set transcription on/off as default
+        l_trans_setting= tk.Label(master=page, text="Set transcription on/off default for mode: ")
+        l_trans_setting.grid(row=8, column=0, columnspan=2)
+
+        # make check box selection
+        check_boxes =tk.Frame(page)
+        check_boxes.grid(row = 9, column = 0,columnspan = 2, sticky = 'news')
+        modes_list = list(self.modes.keys())
+        index = list(range(len(modes_list)))
+        for i in range(0,len(self.modes.keys())):
+            index[i] = tk.IntVar()
+            index[i].set(self.modes[modes_list[i]].trans)
+            tk.Checkbutton(master=check_boxes, text=modes_list[i], var  = index[i]).grid(row = i, column = 0)
+
+        btn_update_trans_set = tk.Button(master=page, text = 'Update transcription default', command = lambda: self.update_trans(modes_list,index))
+        btn_update_trans_set.grid(row=10, column=0, columnspan=2)
 
         # Add new command to mode
         l_cmd_mode = tk.Label(master=page, text='Add cmd to mode:')
-        l_cmd_mode.grid(row=7, column=0, columnspan=2)
+        l_cmd_mode.grid(row=11, column=0, columnspan=2)
 
         current_modes = tk.StringVar()
-        current_modes.set(self.current_mode.get())
+        current_modes.set(self.current_mode)
         m_select_modeadd = tk.OptionMenu(page, current_modes, *list(self.modes.keys()))
-        m_select_modeadd.grid(row=8, column=0, columnspan=2)
+        m_select_modeadd.grid(row=12, column=0, columnspan=2)
 
         l_cmd_key_word = tk.Label(master=page, text='Key word to cmd:')
-        l_cmd_key_word.grid(row=9, column=0)
+        l_cmd_key_word.grid(row=13, column=0)
 
         txt_key_word = tk.Entry(master=page)
-        txt_key_word.grid(row=9, column=1)
+        txt_key_word.grid(row=13, column=1)
 
         l_cmd = tk.Label(master=page, text='Desired cmd:')
-        l_cmd.grid(row=10, column=0)
+        l_cmd.grid(row=14, column=0)
 
         txt_cmd = tk.Entry(master=page)
-        txt_cmd.grid(row=10, column=1)
+        txt_cmd.grid(row=14, column=1)
 
         btn_addmode = tk.Button(master=page, text='Add command',
-                                command=lambda: self.add_cmd(current_modes.get(), txt_key_word.get(), txt_cmd.get()))
-        btn_addmode.grid(row=11, column=0, columnspan=2)
+                                command=lambda: self.add_cmd(current_modes.get(), txt_key_word.get(), txt_cmd.get(), txt_key_word, txt_cmd))
+        btn_addmode.grid(row=15, column=0, columnspan=2)
 
         # Close Button
         btn_close_stt = tk.Button(master=page, text='Close Speech to Text Settings', command=lambda: page.destroy())
-        btn_close_stt.grid(row=13, column=0, columnspan=4, sticky='news')
+        btn_close_stt.grid(row=16, column=0, columnspan=2, sticky='news')
 
     def settings_gui(self):
         gui_page = tk.messagebox.showinfo(title='Window options', message='Window options are still under development')
@@ -340,24 +373,70 @@ class GUI:
         # hide the trascription
         self.l_transcription.grid_forget()
 
-    def add_cmd(self, mode, key, cmd):
-        filename = self.modes[mode].file_name
-        keys = key.split()
-        if len(keys)>1:
-            print(str(mode) + str(keys[0]) + 'multi')
-            save_add_cmd(filename, key[0], cmd)
-            print(str(mode) + str(keys[0]) + str(keys[1]) + str(cmd))
-            save_add_cmd(filename, keys[0]+keys[1], cmd)
-        else:
-            print(str(mode) + str(keys[0]) + str(cmd))
-            save_add_cmd(filename, keys[0], cmd)
-    def create_mode(self, name):
-        file = open('cmd_' + str(name) + '.txt', 'w+', encoding='utf-8')
-        file.close()
-        self.modes[name] = Mode(name, True, 'cmd_' + str(name) + '.txt')
+    def add_cmd(self, mode, keys, cmd, entry_1, entry_2):
+        keys = keys.split()
+        if len(keys) > 2 and cmd > '':
+            msg_len = tk.messagebox.showinfo('Keyword is too long', 'The key word combination you have entered contains more than two words '
+                                                 +'Please enter a key word combination with no more than two words')
+        elif len(keys)>1 and cmd > '':
+            if (keys[0]+keys[1]) in self.cmd_dict.modes[mode]:
+                msg_key_2 = tk.messagebox.askyesno('Key word exisit',
+                                                 'The key word combination you have entered already exists. '
+                                                 +'Would you like to replace the functionality of the key word', )
+                if msg_key_2:
+                    self.save_cmd(mode, keys[0], 'multi')
+                    self.save_cmd(mode, keys[0]+keys[1], cmd)
+                    entry_1.delete(0, 'end')
+                    entry_2.delete(0, 'end')
+            else:
+                self.save_cmd(mode, keys[0], 'multi')
+                self.save_cmd(mode, keys[0] + keys[1], cmd)
+                entry_1.delete(0, 'end')
+                entry_2.delete(0, 'end')
 
-    def set_start(self, mode):
-        print('Make default')
+        elif len(keys)>0 and cmd > '':
+            if keys[0] in self.cmd_dict.modes[mode]:
+                msg_key = tk.messagebox.askyesno('Key word exisit', 'The key word you have entered already exists. Would you like to replace the functionality of the key word', )
+                if msg_key:
+                    self.save_cmd(mode, keys[0], cmd)
+                    entry_1.delete(0, 'end')
+                    entry_2.delete(0, 'end')
+
+            else:
+                self.save_cmd(mode, keys[0], cmd)
+                entry_1.delete(0, 'end')
+                entry_2.delete(0, 'end')
+        else:
+            if len(keys) == 0 and cmd == '':
+                msg_both = tk.messagebox.showinfo('Too few characters', 'The key you have entred has too few characters. Please enter a cmd and a key that has length greater than 1 character')
+            elif len(keys) == 0 :
+                msg_key = tk.messagebox.showinfo('Too few characters in key',
+                                                 'The key you have entred has too few characters. Please enter a cmd that has length greater than 1 character')
+            else:
+                msg_cmd = tk.messagebox.showinfo('Too few characters in cmd',
+                                                 'The cmd you have entred has too few characters. Please enter a cmd that')
+    def save_cmd (self, mode, key, cmd):
+        filename = self.modes[mode].file_name
+        self.cmd_dict.modes[mode][key] = cmd
+        print(str(mode) + str(key) + str(cmd))
+        save_add_cmd(filename, key, cmd)
+
+    def create_mode(self, name, trans,entry):
+        if name>'' and not self.modes.get(name):
+            entry.delete(0, 'end')
+            new_filename = 'cmd_' + str(name) + '.txt'
+            # create a new text file to store all cmds in
+            file = open(new_filename, 'w+', encoding='utf-8')
+            file.close()
+            # add to dict and file of modes
+            self.modes[name] = Mode(name,bool(trans.get), new_filename, False)
+        elif self.modes.get(name):
+            msg_name =  tk.messagebox.showinfo('Mode already exsist', 'The mode name you have entered already exsists as a mode.'
+                                                                     + ' Please enter another mode name')
+        else:
+            msg_too_few = tk.messagebox.showinfo('Too few characters', 'The mode name you have entred has too few characters. ' +
+                                                                       'Please give it the name of minimum one character in lenght')
+
 
     def panel_view(self):
         # resize and move window
@@ -394,7 +473,7 @@ class GUI:
 
         print('Update mode to %s' % select)
 
-    def uppdate_transcript(self, line):
+    def update_transcript(self, line):
         if self.transcription:
             self.l_transcription.config(text=line)
         else:
@@ -410,6 +489,11 @@ class GUI:
         self.l_transcription.config(text='Transcription is on')
         btn.config(text='ON', command=lambda: self.off_transcript(btn))
 
+    def update_trans(self, mode_list,index):
+        for i in range(len(index)):
+            self.modes[mode_list[i]].trans = index[i].get()
+            print(str(mode_list[i]) + ';' + str(index[i].get()))
+
     def factory_settings(self):
         factory_msg = tk.messagebox.askokcancel(title='Reset to factory settings',
                                                 message='Do you wish to reset the app to factory settings?\n All your personalised settings will be lost.')
@@ -418,10 +502,10 @@ class GUI:
             save_changed_settings('settingsGUI.txt', self.settings)
 
 
-def save_changed_settings(filename, dict):
+def save_changed_settings(filename, dict_set):
     print('save changes runs')
     file = open(filename, 'w', encoding='utf-8')
-    li = dict.items()
+    li = dict_set.items()
     for pair in li:
         if not (isinstance(pair[1], list)):
             file.write(str(pair[0]) + ';' + str(pair[1]) + '\n')
@@ -435,7 +519,7 @@ def save_changed_settings(filename, dict):
 
 def save_add_cmd(filename_mode, key, value):
     file = open(filename_mode, 'a', encoding='utf-8')
-    file.write(key + ',' + str(value) + '\n')
+    file.write(key + ' ' + str(value) +'\n')
     file.close()
 
 
@@ -485,8 +569,66 @@ def setting_config(filename):
     return settings_current
 
 
+
+from threading import Lock
+import keyboard as kb
+
+class CommandController:
+
+    def __init__(self):
+        self.modes = {}
+
+    def load_cmds(self, name, filename):
+        cmd_dict = {}
+        file = open(filename, 'r', encoding = 'utf-8')
+        lines = file.readlines()
+        file.close()
+        for line in lines:
+            line = line.strip('\n')
+            line = line.split(' ')
+            cmd_dict[line[0]] = line[1]
+
+        self.modes[name] = cmd_dict
+
+    def find_cmd(self, name, trans):
+        # if not self.modes.get(name):
+        #     return "empty", trans
+
+        if trans == "":
+            return "empty", ""
+
+        line = trans.split()
+        cmd_dict = self.modes[name]
+        cmd = 'empty'
+        left_string = line
+        for i in range(len(line)):
+            if cmd_dict.get(line[i]):
+                if i<len(line) and (cmd_dict[line[i]] == 'multi'): # if it is a a cmd that requires multiple words the first word has been designated the value multi to check for a second
+                    if len(line) == i+1:
+                        unprocessed_string = " ".join(left_string[i:])
+                        return cmd, unprocessed_string
+                    elif cmd_dict.get(line[i]+line[i+1]):
+                        print('cmd word' + line[i] +' ' + line[i+1] + 'cmd: ' + cmd_dict[line[i]+line[i+1]])
+                        cmd = cmd_dict[line[i]+line[i+1]]
+                        unprocessed_string = " ".join(left_string[i + 2:])
+                        return cmd, unprocessed_string
+                else:
+                    print('key: ' + line[i] + '\nvalue: ' + cmd_dict[line[i]])
+                    cmd = cmd_dict[line[i]]
+                    unprocessed_string = " ".join(left_string[i + 1:])
+                    return cmd, unprocessed_string
+
+        return cmd, ""
+
 if __name__ == "__main__":
     modes = mode_dict_set_up('GUISetUp.txt')
     print(modes['typing'].file_name)
     settings = setting_config('SettingsGUI.txt')
-    app = GUI(modes, settings, 'GUISetUp.txt')
+    arduino = None;
+
+    controller = CommandController()
+
+    for key in modes:
+        controller.load_cmds(key, modes[key].file_name)
+    print(controller.modes)
+    app = GUI(modes, settings, arduino, controller)

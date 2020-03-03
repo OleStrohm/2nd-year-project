@@ -39,7 +39,7 @@ class App:
         textToSpeech.start()
         modes = mode_dict_set_up('gui/GUISetUp.txt')
         settings = setting_config('gui/settingsGUI.txt')
-        self.gui = GUI(modes, settings, 'backend/cmds_format.txt', arduino)
+        self.gui = GUI(modes, settings, arduino)
         print("Initialized")
 
     def on_close(self):
