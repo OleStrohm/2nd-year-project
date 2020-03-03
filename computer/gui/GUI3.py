@@ -7,14 +7,14 @@ from threading import Thread
 class GUI:
     """ sets up the main window and all the graphics """
 
-    def __init__(self, modes, settings, arduino, commands):
+    def __init__(self, path, modes, settings, arduino, commands):
         self.modes = modes
         self.settings = settings
         self.commands = commands
         self.arduino = arduino
 
         for key in modes:
-            commands.load_cmds(key, modes[key].file_name)
+            commands.load_cmds(key, path + modes[key].file_name)
         print(commands.modes)
 
         self.root = None
@@ -382,7 +382,7 @@ class GUI:
             msg_len = tk.messagebox.showinfo('Keyword is too long', 'The key word combination you have entered contains more than two words '
                                                  +'Please enter a key word combination with no more than two words')
         elif len(keys)>1 and cmd > '':
-            if (keys[0]+keys[1]) in self.controller.modes[mode]:
+            if (keys[0]+keys[1]) in self.commands.modes[mode]:
                 msg_key_2 = tk.messagebox.askyesno('Key word exisit',
                                                  'The key word combination you have entered already exists. '
                                                  +'Would you like to replace the functionality of the key word', )
@@ -398,7 +398,7 @@ class GUI:
                 entry_2.delete(0, 'end')
 
         elif len(keys)>0 and cmd > '':
-            if keys[0] in self.controller.modes[mode]:
+            if keys[0] in self.commands.modes[mode]:
                 msg_key = tk.messagebox.askyesno('Key word exisit', 'The key word you have entered already exists. Would you like to replace the functionality of the key word', )
                 if msg_key:
                     self.save_cmd(mode, keys[0], cmd)
@@ -420,7 +420,7 @@ class GUI:
                                                  'The cmd you have entred has too few characters. Please enter a cmd that')
     def save_cmd (self, mode, key, cmd):
         filename = self.modes[mode].file_name
-        self.controller.modes[mode][key] = cmd
+        self.commands.modes[mode][key] = cmd
         print(str(mode) + str(key) + str(cmd))
         save_add_cmd(filename, key, cmd)
 
@@ -526,7 +526,7 @@ def save_add_cmd(filename_mode, key, value):
     file.close()
 
 
-class Mode():
+class Mode:
     # class that creates mode objects
     def __init__(self, name, transcription, file, echo):
         self.name = name
@@ -624,11 +624,11 @@ class CommandController:
         return cmd, ""
 
 if __name__ == "__main__":
-    modes = mode_dict_set_up('GUISetUp.txt')
+    modes = mode_dict_set_up('settings/GUISetUp.txt')
     print(modes['typing'].file_name)
-    settings = setting_config('SettingsGUI.txt')
-    arduino = None;
+    settings = setting_config('settings/settingsGUI.txt')
+    arduino = None
 
     commands = CommandController()
 
-    app = GUI(modes, settings, arduino, commands)
+    app = GUI("", modes, settings, arduino, commands)
