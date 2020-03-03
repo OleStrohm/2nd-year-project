@@ -32,14 +32,15 @@ class App:
     def __init__(self):
         self.unprocessed = ""
         self.commands = CommandController()
-        self.commands.load_cmds("format", 'backend/cmds_format.txt')
+        # self.commands.load_cmds("format", 'backend/cmds_format.txt')
         arduino = ArduinoController()
         arduino.start()
         textToSpeech = SpeechToTextController(self, stt_callback)
         textToSpeech.start()
+
         modes = mode_dict_set_up('gui/GUISetUp.txt')
         settings = setting_config('gui/settingsGUI.txt')
-        self.gui = GUI(modes, settings, arduino)
+        self.gui = GUI(modes, settings, arduino, self.commands)
         print("Initialized")
 
     def on_close(self):
