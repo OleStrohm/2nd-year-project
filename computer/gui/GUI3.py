@@ -7,21 +7,25 @@ from threading import Thread
 class GUI:
     """ sets up the main window and all the graphics """
 
-    def __init__(self, path, modes, settings, arduino, commands):
-        self.modes = modes
-        self.settings = settings
+    def __init__(self, path, modes_file, settings_file, arduino, commands):
         self.commands = commands
         self.arduino = arduino
+        self.path = path
+        self.modes_file = path + modes_file
+        self.settings_file = path + settings_file
 
-        for key in modes:
-            commands.load_cmds(key, path + modes[key].file_name)
-        print(commands.modes)
+        self.modes = mode_dict_set_up(modes_file)
+        self.settings = setting_config(settings_file)
+
+        for key in self.modes:
+            self.commands.load_cmds(key, path + self.modes[key].file_name)
+        # print(commands.modes)
 
         self.root = None
         self.width = None
         self.height = None
         self.changes = False
-        self.transcription = modes[self.settings['start_mode']].trans
+        self.transcription = self.modes[self.settings['start_mode']].trans
         self.current_mode = self.settings['start_mode']
         self.t = Thread(target=self.main_loop, args=(self,))
         self.t.start()
@@ -135,7 +139,7 @@ class GUI:
             default_msg = tk.messagebox.askyesno(title='Update %s settings ' %name,
                                                     message='You have unsaved changes. Do you wish to make the settings changes to your default settings?')
             if default_msg:
-                self.save('settings\SettingsGUI.txt', self.settings)
+                self.save(self.settings_file, self.settings)
         window.destroy()
 
     def save(self, filename, dict_set):
@@ -187,7 +191,7 @@ class GUI:
 
         # Save Button
         btn_save_js = tk.Button(master=joy_page, text='Save Settings as Default',
-                                 command=lambda: self.save('settings\SettingsGUI.txt', self.settings))
+                                 command=lambda: self.save(self.settings_file, self.settings))
         btn_save_js.grid(row=8, column=0, columnspan = 3)
         # Close Button
         btn_close_js = tk.Button(master=joy_page, text='Close Joystick Settings', command=lambda: self.close_settings('Joystick', joy_page))
@@ -259,7 +263,7 @@ class GUI:
                               lambda event: self.settings_update(slider_pressure.get(), 'length_short'))
         # Save Button
         btn_save_sp = tk.Button(master=page, text='Save Settings as Default',
-                                command=lambda: self.save('settings\SettingsGUI.txt', self.settings))
+                                command=lambda: self.save(self.settings_file, self.settings))
         btn_save_sp.grid(row=8, column=1, columnspan=2)
 
         # Close Button
@@ -280,7 +284,7 @@ class GUI:
         m_select_start.grid(row=1, column=0, columnspan=2)
 
         btn_set_start = tk.Button(master=page, text='Make default on Start up',
-                                  command=lambda: self.save('settings\SettingsGUI.txt', self.settings))
+                                  command=lambda: self.save(self.settings_file, self.settings))
         btn_set_start.grid(row=2, column=0, columnspan=2)
 
         # Selection to trun on/off
@@ -359,12 +363,12 @@ class GUI:
             msg = tk.messagebox.askyesno(title = 'Unsaved Changes', message = 'There are unsaved settings changes. Do you wish to save these to default settings?')
             if msg:
                 self.changes = False
-                save_changed_settings('settings\SettingsGUI.txt', self.settings)
-                save_mode_settings('settings\GUISetUp.txt', self.modes)
+                save_changed_settings(self.settings_file, self.settings)
+                save_mode_settings(self.modes_file, self.modes)
         window.destroy()
 
     def save_trans(self):
-        save_mode_settings('settings\GUISetUp.txt', self.modes)
+        save_mode_settings(self.modes_file, self.modes)
         self.changes = False
 
     def settings_gui(self):
@@ -443,7 +447,7 @@ class GUI:
                                                  'The cmd you have entred has too few characters. Please enter a cmd that')
 
     def save_cmd (self, mode, key, cmd):
-        filename = self.modes[mode].file_name
+        filename = self.path + self.modes[mode].file_name
         self.commands.modes[mode][key] = cmd
         print(str(mode) + str(key) + str(cmd))
         save_add_cmd(filename, key, cmd)
@@ -451,7 +455,7 @@ class GUI:
     def create_mode(self, name, trans,entry):
         if name>'' and not self.modes.get(name):
             entry.delete(0, 'end')
-            new_filename = 'cmd_' + str(name) + '.txt'
+            new_filename = self.path+'settings/cmd_' + str(name) + '.txt'
             # create a new text file to store all cmds in
             file = open(new_filename, 'w+', encoding='utf-8')
             file.close()
@@ -528,8 +532,8 @@ class GUI:
         factory_msg = tk.messagebox.askyesno(title='Reset to factory settings',
                                                 message='Do you wish to reset the app to factory settings?\n All your personalised settings will be lost.')
         if factory_msg:
-            self.settings = setting_config('DefaultSettingsGUI.txt')
-            save_changed_settings('settings\sttingsGUI.txt', self.settings)
+            self.settings = setting_config(self.path + 'DefaultSettingsGUI.txt')
+            save_changed_settings(self.settings_file, self.settings)
 
 
 def save_changed_settings(filename, dict_set):
@@ -581,8 +585,6 @@ def save_mode_settings(filename, modes_dict):
         mode = modes_dict[key]
         file.write(mode.name + ';' + str(mode.trans) + ';' + mode.file_name + ';' + str(mode.echo) + '\n')
     file.close()
-
-
 
 def setting_config(filename):
     """sets up a dict contains all the settings"""
@@ -656,11 +658,6 @@ class CommandController:
         return cmd, ""
 
 if __name__ == "__main__":
-    modes = mode_dict_set_up('settings/GUISetUp.txt')
-    print(modes['typing'].file_name)
-    settings = setting_config('settings/settingsGUI.txt')
     arduino = None
-
     commands = CommandController()
-
-    app = GUI("", modes, settings, arduino, commands)
+    app = GUI("", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, commands)

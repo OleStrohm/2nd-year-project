@@ -1,4 +1,4 @@
- dead_zone;0
+dead_zone;0
 X_range;100
 Y_range;100
 Cursor_speed;20

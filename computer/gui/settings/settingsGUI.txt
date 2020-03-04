@@ -1,6 +1,6 @@
 dead_zone;74
-X_range;34
-Y_range;15
+X_range;81
+Y_range;76
 Cursor_speed;0
 leftC_pre;puff
 leftC_len;short
