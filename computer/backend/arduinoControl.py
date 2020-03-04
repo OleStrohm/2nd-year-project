@@ -3,7 +3,6 @@ import serial.tools.list_ports
 import mouse
 from threading import Thread, Lock
 from math import floor
-import keyboard as kb
 from time import time, time_ns
 
 class ArduinoController:
@@ -21,13 +20,15 @@ class ArduinoController:
         else:
             self.ser = None
 
-# variables set up
+# settings
         self.puff_threshold = 600
         self.sip_threshold = 300
         self.short_puff_time = 0.15
         self.long_puff_time = 0.4
         self.short_sip_time = 0.2
         self.long_sip_time = 0.4
+
+# variables
         self.above_threshold = False
         self.below_threshold = False
         self.drag = False
@@ -36,6 +37,8 @@ class ArduinoController:
         self.double = False
 
         self.mouse_calibrate = True
+
+# settings
         self.mouse_dead_zone = 5
         self.mouse_scaling_threshold = 300
         self.mouse_lower_scaling = 1
@@ -160,6 +163,36 @@ class ArduinoController:
             self.mouse_controller.set_bounds(w, h)
         finally:
             self.mutex.release()
+
+    def set_puff_threshold(self, puff_threshold):
+        self.puff_threshold = puff_threshold
+
+    def set_sip_threshold(self, sip_threshold):
+        self.sip_threshold = sip_threshold
+
+    def set_short_puff_time(self, short_puff_time):
+        self.short_puff_time = short_puff_time
+
+    def set_long_puff_time(self, long_puff_time):
+        self.long_puff_time = long_puff_time
+
+    def set_short_sip_time(self, short_sip_time):
+        self.short_sip_time = short_sip_time
+
+    def set_long_sip_time(self, long_sip_time):
+        self.long_sip_time = long_sip_time
+
+    def set_mouse_dead_zone(self, mouse_dead_zone):
+        self.mouse_dead_zone = mouse_dead_zone
+
+    def set_mouse_scaling_threshold(self, mouse_scaling_threshold):
+        self.mouse_scaling_threshold = mouse_scaling_threshold
+
+    def set_mouse_speed(self, mouse_speed):
+        self.mouse_lower_scaling = mouse_speed
+        self.mouse_higher_scaling = mouse_speed/2
+
+
 
 class MouseController:
 

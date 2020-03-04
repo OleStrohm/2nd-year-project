@@ -1,3 +1,0 @@
-format;1;cmd_format.txt;0
-typing;1;cmd_typing.txt;1
-code;1;cmd_format.txt;0

@@ -7,10 +7,9 @@ from word2cmd import CommandController
 
 mutex = Lock()
 
-
 def stt_callback(app, text, final):
     if final:
-        app.gui.uppdate_transcript(text)
+        app.gui.update_transcript(text)
 
         if app.gui.modes[app.gui.current_mode].echo:
             print("Final: " + text)
@@ -24,7 +23,7 @@ def stt_callback(app, text, final):
             app.unprocessed = unprocessed
     else:
         print("Potential: " + text)
-        app.gui.uppdate_transcript(text)
+        app.gui.update_transcript(text)
 
 
 class App:
@@ -32,19 +31,17 @@ class App:
     def __init__(self):
         self.unprocessed = ""
         self.commands = CommandController()
-        self.commands.load_cmds("format", 'backend/cmds_format.txt')
+        # self.commands.load_cmds("format", 'backend/cmds_format.txt')
         arduino = ArduinoController()
         arduino.start()
-        textToSpeech = SpeechToTextController(self, stt_callback)
-        textToSpeech.start()
-        modes = mode_dict_set_up('gui/GUISetUp.txt')
-        settings = setting_config('gui/settingsGUI.txt')
-        self.gui = GUI(modes, settings, 'backend/cmds_format.txt', arduino)
+        text_to_speech = SpeechToTextController(self, stt_callback)
+        text_to_speech.start()
+
+        self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands)
         print("Initialized")
 
     def on_close(self):
         pass
-
 
 if __name__ == "__main__":
     app = App()
