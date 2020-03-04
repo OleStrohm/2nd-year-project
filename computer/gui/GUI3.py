@@ -502,6 +502,9 @@ class GUI:
         print(self.transcription)
         if not self.transcription:
             self.l_transcription.config(text='Transcription is off')
+            self.off_transcript()
+        else:
+            self.on_transcript()
 
         print('Update mode to %s' % select)
 
@@ -514,12 +517,12 @@ class GUI:
     def off_transcript(self):
         self.l_transcription.config(text='Transcription is off')
         self.transcription = False
-        self.btn_transcription.config(text='OFF', command=lambda: self.on_transcript)
+        self.btn_transcription.config(text='ON', command=self.on_transcript)
 
     def on_transcript(self):
         self.transcription = True
         self.l_transcription.config(text='Transcription is on')
-        self.btn_transcription.config(text='ON', command=lambda: self.off_transcript)
+        self.btn_transcription.config(text='OFF', command=self.off_transcript)
 
     def update_trans(self, mode_list,index):
         print ('does this work')
