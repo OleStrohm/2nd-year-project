@@ -8,7 +8,6 @@
  * short
  * long
  * double short
- * double long
   
 #puff
  * pressure threshold
@@ -20,9 +19,9 @@
  * short
  * long
  * double short
- * double long
  
 #joystick
  * dead zone
  * speed
  * high speed threshold
+ * scaling factor
