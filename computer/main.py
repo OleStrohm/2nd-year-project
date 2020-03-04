@@ -34,8 +34,8 @@ class App:
         # self.commands.load_cmds("format", 'backend/cmds_format.txt')
         arduino = ArduinoController()
         arduino.start()
-        textToSpeech = SpeechToTextController(self, stt_callback)
-        textToSpeech.start()
+        text_to_speech = SpeechToTextController(self, stt_callback)
+        text_to_speech.start()
 
         self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands)
         print("Initialized")

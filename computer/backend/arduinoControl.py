@@ -164,6 +164,36 @@ class ArduinoController:
         finally:
             self.mutex.release()
 
+    def set_puff_threshold(self, puff_threshold):
+        self.puff_threshold = puff_threshold
+
+    def set_sip_threshold(self, sip_threshold):
+        self.sip_threshold = sip_threshold
+
+    def set_short_puff_time(self, short_puff_time):
+        self.short_puff_time = short_puff_time
+
+    def set_long_puff_time(self, long_puff_time):
+        self.long_puff_time = long_puff_time
+
+    def set_short_sip_time(self, short_sip_time):
+        self.short_sip_time = short_sip_time
+
+    def set_long_sip_time(self, long_sip_time):
+        self.long_sip_time = long_sip_time
+
+    def set_mouse_dead_zone(self, mouse_dead_zone):
+        self.mouse_dead_zone = mouse_dead_zone
+
+    def set_mouse_scaling_threshold(self, mouse_scaling_threshold):
+        self.mouse_scaling_threshold = mouse_scaling_threshold
+
+    def set_mouse_speed(self, mouse_speed):
+        self.mouse_lower_scaling = mouse_speed
+        self.mouse_higher_scaling = mouse_speed/2
+
+
+
 class MouseController:
 
     def __init__(self):

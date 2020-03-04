@@ -2,7 +2,7 @@ import tkinter as tk
 import tkinter.messagebox
 
 from threading import Thread
-
+from arduinoControl import ArduinoController
 
 class GUI:
     """ sets up the main window and all the graphics """
@@ -157,7 +157,7 @@ class GUI:
         slider_speed = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
         slider_speed.set(self.settings['Cursor_speed'])  # update with settings value
         slider_speed.grid(row=1, column=1, columnspan=1, sticky='news')
-        slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'Cursor_speed'))
+        slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'Cursor_speed', print))
 
         # Set Up Range Sensetivity
         l_X = tk.Label(master=joy_page, text='X Range')
@@ -167,7 +167,7 @@ class GUI:
         slider_X = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal', )
         slider_X.set(self.settings['X_range'])  # update with settings value
         slider_X.grid(row=3, column=1, sticky='news')
-        slider_X.bind("<ButtonRelease>", lambda event: self.settings_update(slider_X.get(), 'X_range'))
+        slider_X.bind("<ButtonRelease>", lambda event: self.settings_update(slider_X.get(), 'X_range', print))
 
         # Set Up Range Sensetivity
         l_Y = tk.Label(master=joy_page, text='Y Range')
@@ -177,7 +177,7 @@ class GUI:
         slider_Y = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal', )
         slider_Y.set(self.settings['Y_range'])  # update with settings value
         slider_Y.grid(row=5, column=1, sticky='news')
-        slider_Y.bind("<ButtonRelease>", lambda event: self.settings_update(slider_Y.get(), 'Y_range'))
+        slider_Y.bind("<ButtonRelease>", lambda event: self.settings_update(slider_Y.get(), 'Y_range', print))
 
         # set size of dead zone
         l_speed = tk.Label(master=joy_page, text='Dead zone size')
@@ -187,7 +187,7 @@ class GUI:
         slider_speed = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
         slider_speed.set(self.settings['dead_zone'])  # update with settings value
         slider_speed.grid(row=7, column=1, columnspan=1, sticky='news')
-        slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'dead_zone'))
+        slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'dead_zone', self.arduino.set_dead_zone))
 
         # Save Button
         btn_save_js = tk.Button(master=joy_page, text='Save Settings as Default',
@@ -210,7 +210,7 @@ class GUI:
         slider_pressure.set(self.settings['Min_sens'])  # update with settings value
         slider_pressure.grid(row=1, column=1, columnspan=2, sticky='news')
         slider_pressure.bind("<ButtonRelease>",
-                             lambda event: self.settings_update(slider_pressure.get(), 'Min_sens'))
+                             lambda event: self.settings_update(slider_pressure.get(), 'Min_sens', self.arduino.set_puff_threshold))
 
         # Set left click
         l_left = tk.Label(master=page, text='Left click functionality', wraplength=50)
@@ -374,7 +374,8 @@ class GUI:
     def settings_gui(self):
         gui_page = tk.messagebox.showinfo(title='Window options', message='Window options are still under development')
 
-    def settings_update(self, value, name):
+    def settings_update(self, value, name, callback):
+        callback(value)
         self.settings[name] = value
         self.changes = True
 
@@ -661,6 +662,6 @@ class CommandController:
         return cmd, ""
 
 if __name__ == "__main__":
-    arduino = None
+    arduino = ArduinoController()
     commands = CommandController()
     app = GUI("", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, commands)
