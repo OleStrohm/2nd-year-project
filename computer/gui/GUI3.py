@@ -151,6 +151,17 @@ class GUI:
     def settings_joy(self):
         joy_page = tk.Toplevel(self.main_menu)
         joy_page.title('Settings Joystick')
+        # set size of dead zone
+        l_speed = tk.Label(master=joy_page, text='Dead zone size')
+        l_speed.grid(row=6, column=0, columnspan=2, sticky='news')
+        l_smin = tk.Label(master=joy_page, text='Min size 0').grid(row=7, column=0, sticky='nes')
+        l_smax = tk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
+        dead_zone = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
+        dead_zone.set(self.settings['dead_zone'])  # update with settings value
+        dead_zone.grid(row=7, column=1, columnspan=1, sticky='news')
+        dead_zone.bind("<ButtonRelease>",
+                       lambda event: self.settings_update(dead_zone.get(), 'dead_zone', self.arduino.set_dead_zone))
+
         # set the speed of the cursor
         l_speed = tk.Label(master=joy_page, text='Cursor speed')
         l_speed.grid(row=0, column=0, columnspan=2, sticky='news')
@@ -161,36 +172,15 @@ class GUI:
         slider_speed.grid(row=1, column=1, columnspan=1, sticky='news')
         slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'Cursor_speed', print))
 
-        # Set Up Range Sensetivity
-        l_X = tk.Label(master=joy_page, text='X Range')
-        l_X.grid(row=2, column=0, columnspan=3, sticky='ews')
-        l_Xmin = tk.Label(master=joy_page, text='Min Range 0').grid(row=3, column=0, sticky='nes')
-        l_Xmix = tk.Label(master=joy_page, text='100 Max Range').grid(row=3, column=2, sticky='nws')
-        slider_X = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal', )
-        slider_X.set(self.settings['X_range'])  # update with settings value
-        slider_X.grid(row=3, column=1, sticky='news')
-        slider_X.bind("<ButtonRelease>", lambda event: self.settings_update(slider_X.get(), 'X_range', print))
-
-        # Set Up Range Sensetivity
-        l_Y = tk.Label(master=joy_page, text='Y Range')
-        l_Y.grid(row=4, column=0, columnspan=3, sticky='ews')
-        l_Ymin = tk.Label(master=joy_page, text='Min Range 0').grid(row=5, column=0, sticky='nes')
-        l_Ymix = tk.Label(master=joy_page, text='100 Max Range').grid(row=5, column=2, sticky='nws')
-        slider_Y = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal', )
-        slider_Y.set(self.settings['Y_range'])  # update with settings value
-        slider_Y.grid(row=5, column=1, sticky='news')
-        slider_Y.bind("<ButtonRelease>", lambda event: self.settings_update(slider_Y.get(), 'Y_range', print))
-
-        # set size of dead zone
-        l_speed = tk.Label(master=joy_page, text='Dead zone size')
-        l_speed.grid(row=6, column=0, columnspan=2, sticky='news')
-        l_smin = tk.Label(master=joy_page, text='Min size 0').grid(row=7, column=0, sticky='nes')
-        l_smax = tk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
-        slider_speed = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
-        slider_speed.set(self.settings['dead_zone'])  # update with settings value
-        slider_speed.grid(row=7, column=1, columnspan=1, sticky='news')
-        slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'dead_zone', self.arduino.set_dead_zone))
-
+        # Set Up High Spped Theshold
+        l_high_speed = tk.Label(master=joy_page, text='High Speed Thereshold')
+        l_high_spped.grid(row=4, column=0, columnspan=3, sticky='ews')
+        l_min = tk.Label(master=joy_page, text='Min Range 0').grid(row=5, column=0, sticky='nes')
+        l_mix = tk.Label(master=joy_page, text='512 Max Range').grid(row=5, column=2, sticky='nws')
+        slider_high_speed = tk.Scale(master=joy_page, from_=0, to=512, orient='horizontal', )
+        slider_high_speed.set(self.settings['Y_range'])  # update with settings value
+        slider_high_speed.grid(row=5, column=1, sticky='news')
+        slider_high_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_high_speed.get(), 'high_speed', print))
         # Save Button
         btn_save_js = tk.Button(master=joy_page, text='Save Settings as Default',
                                  command=lambda: self.save(self.settings_file, self.settings))
@@ -203,66 +193,106 @@ class GUI:
     def settings_sip(self):
         page = tk.Toplevel(self.main_menu)
         page.title('Settings Sip & Puff')
+        #Sip
+        l_sip = tk.Label(master = page, text = 'Sip Settings')
+        l_sip.grid(row= 0, column = 0, columnspan = 4)
+
         # set up pressure sensetivity
-        l_pressure = tk.Label(master=page, text='Pressure Threshold')
-        l_pressure.grid(row=0, column=0, columnspan=3, sticky='news')
-        l_pmin = tk.Label(master=page, text='Min Range 0').grid(row=1, column=0, sticky='nes')
-        l_pmax = tk.Label(master=page, text='100 Max Range').grid(row=1, column=3, sticky='nws')
-        slider_pressure = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
-        slider_pressure.set(self.settings['Min_sens'])  # update with settings value
-        slider_pressure.grid(row=1, column=1, columnspan=2, sticky='news')
-        slider_pressure.bind("<ButtonRelease>",
-                             lambda event: self.settings_update(slider_pressure.get(), 'Min_sens', self.arduino.set_puff_threshold))
+        sip_l_pressure = tk.Label(master=page, text='Pressure Threshold')
+        sip_l_pressure.grid(row=0, column=0, columnspan=3, sticky='news')
+        sip_l_pmin = tk.Label(master=page, text='Min Range 0').grid(row=1, column=0, sticky='nes')
+        sip_l_pmax = tk.Label(master=page, text='100 Max Range').grid(row=1, column=3, sticky='nws')
+        sip_slider_pressure = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        sip_slider_pressure.set(self.settings['sip_pressure'])  # update with settings value
+        sip_slider_pressure.grid(row=1, column=1, columnspan=2, sticky='news')
+        sip_slider_pressure.bind("<ButtonRelease>",
+                             lambda event: self.settings_update(sip_slider_pressure.get(), 'sip_pressure', self.arduino.set_puff_threshold))
 
-        # Set left click
-        l_left = tk.Label(master=page, text='Left click functionality', wraplength=50)
-        l_left.grid(row=2, column=0, columnspan=1, sticky='ews')
-        current_type_pre = tk.StringVar()
-        current_type_pre.set(self.settings['leftC_pre'])
-        l_left_menu_pre = tk.OptionMenu(page, current_type_pre, *self.settings['pressure_type'],
-                                        command=lambda select: self.settings_update(select, 'pressure_type'))
-        l_left_menu_pre.grid(row=2, column=1, columnspan=1, sticky='ew')
-        current_type_time = tk.StringVar()
-        current_type_time.set(self.settings['leftC_len'])
-        l_left_menu_time = tk.OptionMenu(page, current_type_time, *self.settings['length'],
-                                         command=lambda select: self.settings_update(select, 'length'))
-        l_left_menu_time.grid(row=2, column=2, columnspan=1, sticky='ew')
 
-        # Set up right click
-        l_left = tk.Label(master=page, text='Right click functionality', wraplength=50)
-        l_left.grid(row=3, column=0, columnspan=1, sticky='ews')
-        current_type_r_pre = tk.StringVar()
-        current_type_r_pre.set(self.settings['rightC_pre'])
-        l_left_menu_r_pre = tk.OptionMenu(page, current_type_r_pre, *self.settings['pressure_type'],
-                                          command=lambda select: self.settings_update(select, 'rightC_pre'))
-        l_left_menu_r_pre.grid(row=3, column=1, columnspan=1, sticky='ew')
-
-        current_type_r_time = tk.StringVar()
-        current_type_r_time.set(self.settings['rightC_len'])
-        l_left_menu_r_time = tk.OptionMenu(page, current_type_r_time, *self.settings['length'],
-                                           command=lambda select: self.settings_update(select, 'rightC_len'))
-        l_left_menu_r_time.grid(row=3, column=2, columnspan=1, sticky='ew')
         # Length of long
-        l_long_time = tk.Label(master=page, text='Length of Long pressure')
-        l_long_time.grid(row=4, column=0, columnspan=4, sticky='news')
-        l_tl_min = tk.Label(master=page, text='Min Range 0').grid(row=5, column=0, sticky='nes')
-        l_tl_max = tk.Label(master=page, text='100 Max Range').grid(row=5, column=3, sticky='nws')
-        slider_long_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
-        slider_long_time.set(self.settings['length_long'])  # update with settings value
-        slider_long_time.grid(row=5, column=1, columnspan=2, sticky='news')
-        slider_long_time.bind("<ButtonRelease>",
-                              lambda event: self.settings_update(slider_pressure.get(), 'length_long'))
+        sip_l_long_time = tk.Label(master=page, text='Length of Long pressure')
+        sip_l_long_time.grid(row=4, column=0, columnspan=4, sticky='news')
+        sip_l_tl_min = tk.Label(master=page, text='Min Range 0').grid(row=5, column=0, sticky='nes')
+        sip_l_tl_max = tk.Label(master=page, text='100 Max Range').grid(row=5, column=3, sticky='nws')
+        sip_slider_long_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        sip_slider_long_time.set(self.settings['sip_long_time'])  # update with settings value
+        sip_slider_long_time.grid(row=5, column=1, columnspan=2, sticky='news')
+        sip_slider_long_time.bind("<ButtonRelease>",
+                              lambda event: self.settings_update(sip_slider_long_time.get(), 'sip_long_time'))
 
         # Length of short
-        l_long_time = tk.Label(master=page, text='Length of Short pressure')
-        l_long_time.grid(row=6, column=0, columnspan=4, sticky='news')
-        l_tl_min = tk.Label(master=page, text='Min Range 0').grid(row=7, column=0, sticky='nes')
-        l_tl_max = tk.Label(master=page, text='100 Max Range').grid(row=7, column=3, sticky='nws')
-        slider_long_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
-        slider_long_time.set(self.settings['length_short'])  # update with settings value
-        slider_long_time.grid(row=7, column=1, columnspan=2, sticky='news')
-        slider_long_time.bind("<ButtonRelease>",
-                              lambda event: self.settings_update(slider_pressure.get(), 'length_short'))
+        sip_l_short_time = tk.Label(master=page, text='Length of Short pressure')
+        sip_l_short_time.grid(row=6, column=0, columnspan=4, sticky='news')
+        sip_l_tl_min = tk.Label(master=page, text='Min Range 0').grid(row=7, column=0, sticky='nes')
+        sip_l_tl_max = tk.Label(master=page, text='100 Max Range').grid(row=7, column=3, sticky='nws')
+        sip_slider_short_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        sip_slider_short_time.set(self.settings['sip_short_time'])  # update with settings value
+        sip_slider_short_time.grid(row=7, column=1, columnspan=2, sticky='news')
+        sip_slider_short_time.bind("<ButtonRelease>",
+                              lambda event: self.settings_update(sip_slider_short_time.get(), 'sip_short_time'))
+
+        #Double time
+        sip_l_d_time = tk.Label(master=page, text='Double Time')
+        sip_l_d_time.grid(row=0, column=0, columnspan=3, sticky='news')
+        sip_l_dmin = tk.Label(master=page, text='Min Range 0').grid(row=1, column=0, sticky='nes')
+        sip_l_dmax = tk.Label(master=page, text='100 Max Range').grid(row=1, column=3, sticky='nws')
+        slider_sip_d_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        slider_sip_d_time.set(self.settings['sip_double_time'])  # update with settings value
+        slider_sip_d_time.grid(row=1, column=1, columnspan=2, sticky='news')
+        slider_sip_d_time.bind("<ButtonRelease>",
+                                  lambda event: self.settings_update(slider_sip_d_time.get(), 'sip_double_time',
+                                                                     self.arduino.set_puff_threshold))
+
+        #Puff
+        l_puff = tk.Label(master=page, text='Puff Settings')
+        l_pus.grid(row=0, column=0, columnspan=4)
+
+        # set up pressure sensetivity
+        puff_l_pressure = tk.Label(master=page, text='Pressure Threshold')
+        puff_l_pressure.grid(row=0, column=0, columnspan=3, sticky='news')
+        puff_l_pmin = tk.Label(master=page, text='Min Range 0').grid(row=1, column=0, sticky='nes')
+        puff_l_pmax = tk.Label(master=page, text='100 Max Range').grid(row=1, column=3, sticky='nws')
+        puff_slider_pressure = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        puff_slider_pressure.set(self.settings['sip_pressure'])  # update with settings value
+        puff_slider_pressure.grid(row=1, column=1, columnspan=2, sticky='news')
+        puff_slider_pressure.bind("<ButtonRelease>",
+                                 lambda event: self.settings_update(sip_slider_pressure.get(), 'sip_pressure',
+                                                                    self.arduino.set_puff_threshold))
+
+        # Length of long
+        puff_l_long_time = tk.Label(master=page, text='Length of Long pressure')
+        puff_l_long_time.grid(row=4, column=0, columnspan=4, sticky='news')
+        puff_l_tl_min = tk.Label(master=page, text='Min Range 0').grid(row=5, column=0, sticky='nes')
+        puff_l_tl_max = tk.Label(master=page, text='100 Max Range').grid(row=5, column=3, sticky='nws')
+        puff_slider_long_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        puff_slider_long_time.set(self.settings['puff_long_time'])  # update with settings value
+        puff_slider_long_time.grid(row=5, column=1, columnspan=2, sticky='news')
+        puff_slider_long_time.bind("<ButtonRelease>",
+                                  lambda event: self.settings_update(puff_slider_long_time.get(), 'puff_long_time'))
+
+        # Length of short
+        puff_l_short_time = tk.Label(master=page, text='Length of Short pressure')
+        puff_l_short_time.grid(row=6, column=0, columnspan=4, sticky='news')
+        puff_l_tl_min = tk.Label(master=page, text='Min Range 0').grid(row=7, column=0, sticky='nes')
+        puff_l_tl_max = tk.Label(master=page, text='100 Max Range').grid(row=7, column=3, sticky='nws')
+        puff_slider_short_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        puff_slider_short_time.set(self.settings['puff_short_time'])  # update with settings value
+        puff_slider_short_time.grid(row=7, column=1, columnspan=2, sticky='news')
+        puff_slider_short_time.bind("<ButtonRelease>",
+                                  lambda event: self.settings_update(puff_slider_short_time.get(), 'puff_short_time'))
+
+        #Double time
+        puff_l_d_time = tk.Label(master=page, text='Double Time')
+        puff_l_d_time.grid(row=0, column=0, columnspan=3, sticky='news')
+        puff_l_dmin = tk.Label(master=page, text='Min Range 0').grid(row=1, column=0, sticky='nes')
+        puff_l_dmax = tk.Label(master=page, text='100 Max Range').grid(row=1, column=3, sticky='nws')
+        slider_puff_d_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        slider_puff_d_time.set(self.settings['puff_double_time'])  # update with settings value
+        slider_puff_d_time.grid(row=1, column=1, columnspan=2, sticky='news')
+        slider_puff_d_time.bind("<ButtonRelease>",
+                                  lambda event: self.settings_update(puff_d_time.get(), 'puff_double_time',
+                                                                     self.arduino.set_puff_threshold))
+
         # Save Button
         btn_save_sp = tk.Button(master=page, text='Save Settings as Default',
                                 command=lambda: self.save(self.settings_file, self.settings))
