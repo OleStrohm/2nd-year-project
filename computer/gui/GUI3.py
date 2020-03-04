@@ -539,7 +539,6 @@ class GUI:
             self.settings = setting_config(self.path + 'DefaultSettingsGUI.txt')
             save_changed_settings(self.settings_file, self.settings)
 
-
 def save_changed_settings(filename, dict_set):
     print('save changes runs')
     file = open(filename, 'w', encoding='utf-8')
