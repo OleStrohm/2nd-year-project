@@ -14,12 +14,12 @@ class GUI:
         self.modes_file = path + modes_file
         self.settings_file = path + settings_file
 
-        self.modes = mode_dict_set_up(modes_file)
-        self.settings = setting_config(settings_file)
+        self.modes = mode_dict_set_up(self.modes_file)
+        self.settings = setting_config(self.settings_file)
 
         for key in self.modes:
             self.commands.load_cmds(key, path + self.modes[key].file_name)
-        # print(commands.modes)
+        print(commands.modes)
 
         self.root = None
         self.width = None

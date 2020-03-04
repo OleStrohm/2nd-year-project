@@ -37,9 +37,7 @@ class App:
         textToSpeech = SpeechToTextController(self, stt_callback)
         textToSpeech.start()
 
-        modes = mode_dict_set_up('gui/settings/GUISetUp.txt')
-        settings = setting_config('gui/settings/settingsGUI.txt')
-        self.gui = GUI("gui/", modes, settings, arduino, self.commands)
+        self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands)
         print("Initialized")
 
     def on_close(self):
