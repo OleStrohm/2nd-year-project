@@ -3,6 +3,8 @@ import tkinter.messagebox
 
 from threading import Thread
 from arduinoControl import ArduinoController
+from threading import Lock
+import keyboard as kb
 
 class GUI:
     """ sets up the main window and all the graphics """
@@ -611,8 +613,6 @@ def setting_config(filename):
 
 
 
-from threading import Lock
-import keyboard as kb
 
 class CommandController:
 
