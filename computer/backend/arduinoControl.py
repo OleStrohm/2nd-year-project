@@ -22,11 +22,13 @@ class ArduinoController:
 
 # settings
         self.puff_threshold = 600
-        self.sip_threshold = 300
         self.short_puff_time = 0.15
         self.long_puff_time = 0.4
+        self.double_puff_time = 0.4
+        self.sip_threshold = 300
         self.short_sip_time = 0.2
         self.long_sip_time = 0.4
+        self.double_sip_time = 0.5
 
 # variables
         self.above_threshold = False
