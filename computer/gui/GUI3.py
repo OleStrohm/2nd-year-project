@@ -143,6 +143,17 @@ class GUI:
                 self.save(self.settings_file, self.settings)
         window.destroy()
 
+    def sip_changes(self, _):
+        self.changes = True
+
+    def sip_close(self, s_sip, s_puff, l_sip, l_puff, d_sip, d_puff, window):
+        if (self.changes):
+            default_msg = tk.messagebox.askyesno(title='Update sip settings ',
+                                                    message='You have unsaved changes. Do you wish to save these changes')
+            if default_msg:
+                self.update_sip_cmds(s_sip, s_puff, l_sip, l_puff, d_sip, d_puff)
+        window.destroy()
+
     def save(self, filename, dict_set):
         save_changed_settings(filename, dict_set)
         self.changes = False
@@ -206,7 +217,7 @@ class GUI:
 
         s_sip_var = tk.StringVar()
         s_sip_var.set(self.settings['s_sip'])
-        menu_s_sip = ttk.OptionMenu(page, s_sip_var, self.settings['s_sip'] ,*cmd_list)
+        menu_s_sip = ttk.OptionMenu(page, s_sip_var, self.settings['s_sip'] ,*cmd_list, command = self.sip_changes)
         menu_s_sip.grid(row =1 , column = 1)
 
         l_s_puff = ttk.Label(master=page, text='Single Puff')
@@ -214,7 +225,7 @@ class GUI:
 
         s_puff_var = tk.StringVar()
         s_puff_var.set(self.settings['s_puff'])
-        menu_s_puff = ttk.OptionMenu(page, s_puff_var,self.settings['s_puff'], *cmd_list)
+        menu_s_puff = ttk.OptionMenu(page, s_puff_var,self.settings['s_puff'], *cmd_list, command = self.sip_changes)
         menu_s_puff.grid(row = 1, column = 3, columnspan = 1)
 
         l_d_sip = ttk.Label(master=page, text='Double Sip')
@@ -222,7 +233,7 @@ class GUI:
 
         d_sip_var = tk.StringVar()
         d_sip_var.set(self.settings['d_sip'])
-        menu_d_sip = ttk.OptionMenu(page, d_sip_var, self.settings['d_sip'], *cmd_list)
+        menu_d_sip = ttk.OptionMenu(page, d_sip_var, self.settings['d_sip'], *cmd_list, command = self.sip_changes)
         menu_d_sip.grid(row=2, column=1, columnspan=1)
 
         l_d_puff = ttk.Label(master=page, text='Double Puff')
@@ -230,7 +241,7 @@ class GUI:
 
         d_puff_var = tk.StringVar()
         d_puff_var.set(self.settings['d_puff'])
-        menu_d_puff = ttk.OptionMenu(page, d_puff_var,self.settings['d_puff'] , *cmd_list)
+        menu_d_puff = ttk.OptionMenu(page, d_puff_var,self.settings['d_puff'] , *cmd_list, command = self.sip_changes)
         menu_d_puff.grid(row=2, column=3, columnspan=1)
 
 
@@ -239,7 +250,7 @@ class GUI:
 
         l_sip_var = tk.StringVar()
         l_sip_var.set(self.settings['l_sip'])
-        menu_l_sip = ttk.OptionMenu(page, l_sip_var,self.settings['l_sip'] , *cmd_list)
+        menu_l_sip = ttk.OptionMenu(page, l_sip_var,self.settings['l_sip'] , *cmd_list, command = self.sip_changes)
         menu_l_sip.grid(row=3, column=1, columnspan=1)
 
         l_l_puff = ttk.Label(master=page, text='Long Puff')
@@ -247,13 +258,13 @@ class GUI:
 
         l_puff_var = tk.StringVar()
         l_puff_var.set(self.settings['l_puff'])
-        menu_l_puff = ttk.OptionMenu(page, l_puff_var,self.settings['l_puff'], *cmd_list)
+        menu_l_puff = ttk.OptionMenu(page, l_puff_var,self.settings['l_puff'], *cmd_list, command = self.sip_changes)
         menu_l_puff.grid(row=3, column=3, columnspan=1)
 
 
         # Save Button
         btn_save_sp = ttk.Button(master=page, text='Save Settings',
-                                command=lambda: self.save(self.settings_file, self.settings))
+                                command=lambda: self.update_sip_cmds(s_sip_var.get(), s_puff_var.get(), l_sip_var.get(), l_puff_var.get(), d_sip_var.get(), d_puff_var.get()))
         btn_save_sp.grid(row=4, column=1, columnspan=2)
 
         #Set up sip combination to command
@@ -261,9 +272,9 @@ class GUI:
 
         # Close Button
         btn_close_sp = ttk.Button(master=page, text='Close Sip & Puff Settings',
-                                 command=lambda: self.close_settings('Sip & Puff', page))
+                                 command=lambda: self.sip_close(s_sip_var.get(), s_puff_var.get(), l_sip_var.get(), l_puff_var.get(), d_sip_var.get(), d_puff_var.get(), page))
         btn_close_sp.grid(row=6, column=0, columnspan=4, sticky='news')
-        page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Sip & Puff', page))
+        page.protocol('WM_DELETE_WINDOW', lambda: self.sip_close(s_sip_var.get(), s_puff_var.get(), l_sip_var.get(), l_puff_var.get(), d_sip_var.get(), d_puff_var.get(), page))
 
 
     def advanced_settings_sip(self):
@@ -486,6 +497,26 @@ class GUI:
         callback(value)
         self.settings[name] = value
         self.changes = True
+
+    def update_sip_cmds(self, s_sip, s_puff, l_sip, l_puff, d_sip, d_puff):
+        cmd_list = [s_sip, s_puff, l_sip, l_puff, d_sip, d_puff];
+        if 'left click' not in cmd_list:
+            msg_left = tk.messagebox.showerror('No left click', message = 'You have not set up a command for left click. This is not valid. Please set a command for left click.')
+        else:
+            self.settings_update(s_sip, 's_sip', print)
+            self.settings_update(s_puff, 's_puff', print)
+            self.settings_update(l_sip, 'l_sip', print)
+            self.settings_update(l_puff, 'l_puff', print)
+            self.settings_update(d_sip, 's_sip', print)
+            self.settings_update(d_puff, 's_puff', print)
+            default_msg = tk.messagebox.askyesno(title='Update Sip & Puff settings ',
+                                                 message='You have upadated your sip & puff settings. Do you wish to make the settings changes to your default settings?')
+            if default_msg:
+                self.save(self.settings_file, self.settings)
+
+
+
+
 
     def move(self):
         # set up grid

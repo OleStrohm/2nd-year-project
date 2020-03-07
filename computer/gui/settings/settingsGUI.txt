@@ -9,11 +9,11 @@ sip_pressure_threshold;300
 sip_short_time;0.2
 sip_long_time;0.4
 sip_double_time;0.5
-s_sip;left click
-s_puff;right click
+s_sip;drag
+s_puff;enter
 d_sip;middle mouse button
 d_puff;enter
-l_sip;drag
+l_sip;double click
 l_puff;double click
 pre_length;100
 Min_sens;0
@@ -24,8 +24,4 @@ start_mode;typing
 pressure_type;sip;puff
 length;long;short
 sip_cmds;left click;right click;middle mouse button;drag;double click;comma;period;enter;disable
-
-
-
-
 
