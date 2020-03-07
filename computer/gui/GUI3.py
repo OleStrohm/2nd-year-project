@@ -48,7 +48,6 @@ class GUI:
         self.root.attributes('-topmost', True)
 
         # frame
-        # self.panel_frame = Frame(self.root, )
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=1)
         self.root.grid_columnconfigure(2, weight=1)
@@ -85,8 +84,7 @@ class GUI:
         # mode menu
         self.m_current_mode = tk.StringVar()
         self.m_current_mode.set(self.current_mode)
-        print(self.current_mode)
-        self.m_mode = ttk.OptionMenu(self.root, self.m_current_mode, *list(self.modes.keys()), command=self.change_mode)
+        self.m_mode = ttk.OptionMenu(self.root, self.m_current_mode, self.current_mode, *list(self.modes.keys()), command=self.change_mode)
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
         if self.transcription:
@@ -208,7 +206,7 @@ class GUI:
 
         s_sip_var = tk.StringVar()
         s_sip_var.set(self.settings['s_sip'])
-        menu_s_sip = ttk.OptionMenu(page, s_sip_var,*cmd_list)
+        menu_s_sip = ttk.OptionMenu(page, s_sip_var, self.settings['s_sip'] ,*cmd_list)
         menu_s_sip.grid(row =1 , column = 1)
 
         l_s_puff = ttk.Label(master=page, text='Single Puff')
@@ -216,7 +214,7 @@ class GUI:
 
         s_puff_var = tk.StringVar()
         s_puff_var.set(self.settings['s_puff'])
-        menu_s_puff = ttk.OptionMenu(page, s_puff_var, *cmd_list)
+        menu_s_puff = ttk.OptionMenu(page, s_puff_var,self.settings['s_puff'], *cmd_list)
         menu_s_puff.grid(row = 1, column = 3, columnspan = 1)
 
         l_d_sip = ttk.Label(master=page, text='Double Sip')
@@ -224,7 +222,7 @@ class GUI:
 
         d_sip_var = tk.StringVar()
         d_sip_var.set(self.settings['d_sip'])
-        menu_d_sip = ttk.OptionMenu(page, d_sip_var, *cmd_list)
+        menu_d_sip = ttk.OptionMenu(page, d_sip_var, self.settings['d_sip'], *cmd_list)
         menu_d_sip.grid(row=2, column=1, columnspan=1)
 
         l_d_puff = ttk.Label(master=page, text='Double Puff')
@@ -232,7 +230,7 @@ class GUI:
 
         d_puff_var = tk.StringVar()
         d_puff_var.set(self.settings['d_puff'])
-        menu_d_puff = ttk.OptionMenu(page, d_puff_var, *cmd_list)
+        menu_d_puff = ttk.OptionMenu(page, d_puff_var,self.settings['d_puff'] , *cmd_list)
         menu_d_puff.grid(row=2, column=3, columnspan=1)
 
 
@@ -241,7 +239,7 @@ class GUI:
 
         l_sip_var = tk.StringVar()
         l_sip_var.set(self.settings['l_sip'])
-        menu_l_sip = ttk.OptionMenu(page, l_sip_var, *cmd_list)
+        menu_l_sip = ttk.OptionMenu(page, l_sip_var,self.settings['l_sip'] , *cmd_list)
         menu_l_sip.grid(row=3, column=1, columnspan=1)
 
         l_l_puff = ttk.Label(master=page, text='Long Puff')
@@ -249,7 +247,7 @@ class GUI:
 
         l_puff_var = tk.StringVar()
         l_puff_var.set(self.settings['l_puff'])
-        menu_l_puff = ttk.OptionMenu(page, l_puff_var, *cmd_list)
+        menu_l_puff = ttk.OptionMenu(page, l_puff_var,self.settings['l_puff'], *cmd_list)
         menu_l_puff.grid(row=3, column=3, columnspan=1)
 
 
@@ -390,7 +388,7 @@ class GUI:
 
         start_mode = tk.StringVar()
         start_mode.set(self.settings['start_mode'])
-        m_select_start = ttk.OptionMenu(page, start_mode, *list(self.modes.keys()), command = lambda select: self.settings_update(select, 'start_mode'))
+        m_select_start = ttk.OptionMenu(page, start_mode, self.settings['start_mode'], *list(self.modes.keys()), command = lambda select: self.settings_update(select, 'start_mode'))
         m_select_start.grid(row=1, column=0, columnspan=2)
 
         btn_set_start = ttk.Button(master=page, text='Make default on Start up',
@@ -449,7 +447,7 @@ class GUI:
 
         current_modes = tk.StringVar()
         current_modes.set(self.current_mode)
-        m_select_modeadd = ttk.OptionMenu(page, current_modes, *list(self.modes.keys()))
+        m_select_modeadd = ttk.OptionMenu(page, current_modes, self.current_mode, *list(self.modes.keys()))
         m_select_modeadd.grid(row=12, column=0, columnspan=2)
 
         l_cmd_key_word = ttk.Label(master=page, text='Key word to cmd:')
