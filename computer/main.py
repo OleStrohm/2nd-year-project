@@ -9,18 +9,24 @@ mutex = Lock()
 
 def stt_callback(app, text, final):
     if final:
+        print("final: " + text)
         app.gui.update_transcript(text)
 
+        # if app.gui.modes[app.gui.current_mode].echo:
+        #     print("Final: " + text)
+        #     kb.write(text)
+        # else:
+        processed, hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, app.unprocessed + " " + text)
         if app.gui.modes[app.gui.current_mode].echo:
-            print("Final: " + text)
-            kb.write(text)
-        else:
-            hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, app.unprocessed + " " + text)
-            while hotkey != "empty":
-                kb.send(hotkey)
-                hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, unprocessed)
+            kb.write(processed)
+        while hotkey != "empty":
+            print("hotkey: " + hotkey)
+            kb.send(hotkey)
+            processed, hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, unprocessed)
+            if app.gui.modes[app.gui.current_mode].echo:
+                kb.write(processed)
 
-            app.unprocessed = unprocessed
+        app.unprocessed = unprocessed
     else:
         print("Potential: " + text)
         app.gui.update_transcript(text)
@@ -34,17 +40,13 @@ class App:
         # self.commands.load_cmds("format", 'backend/cmds_format.txt')
         arduino = ArduinoController()
         arduino.start()
-        textToSpeech = SpeechToTextController(self, stt_callback)
-        textToSpeech.start()
+        speech_to_text = SpeechToTextController(self, stt_callback)
+        speech_to_text.start()
 
-        modes = mode_dict_set_up('gui/settings/GUISetUp.txt')
-        settings = setting_config('gui/settings/settingsGUI.txt')
-        self.gui = GUI("gui/", modes, settings, arduino, self.commands)
+        self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands, speech_to_text)
         print("Initialized")
+        self.gui.start()
 
-    def on_close(self):
-        pass
 
 if __name__ == "__main__":
     app = App()
-    kb.wait("escape")

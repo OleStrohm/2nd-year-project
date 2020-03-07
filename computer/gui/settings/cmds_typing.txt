@@ -1,5 +1,2 @@
-paste ctrl+t
-paste ctrl+t
-paste ctrl+t
-copy ctrl+c
+paste ctrl+v
 copy ctrl+c

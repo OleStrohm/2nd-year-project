@@ -1,7 +1,14 @@
- dead_zone;0
-X_range;100
-Y_range;100
+dead_zone;5
 Cursor_speed;20
+high_speed;300
+puff_pressure_threshold;600
+puff_short_time;0.15
+puff_long_time;0.4
+puff_double_time;0.4
+sip_pressure_threshold;300
+sip_short_time;0.2
+sip_long_time;0.4
+sip_double_time;0.5
 leftC_pre;puff
 leftC_len;short
 rightC_pre;puff
@@ -14,3 +21,4 @@ length_long;100
 length_short;10
 pressure_type;sip;puff
 length;long;short
+start_mode;typing
