@@ -10,7 +10,7 @@ from time import time, time_ns
 class ArduinoController:
 
 	def __init__(self):
-		# serial set up
+		# serial set up¬
 		port = ""
 		ports = serial.tools.list_ports.comports()
 		for p in ports:
@@ -29,7 +29,8 @@ class ArduinoController:
 			"double": self.handle_double_click,
 			"drag": self.handle_drag,
 			"enter": self.handle_enter,
-			"nothing": self.handle_nothing
+			"nothing": self.handle_nothing,
+			"new option": self.handle_nothing
 		}
 
 		self.callbacks = {
@@ -64,8 +65,10 @@ class ArduinoController:
 		self.mouse_dead_zone = 5
 		self.mouse_scaling_threshold = 300
 		self.mouse_lower_scaling = 1
-		self.mouse_higher_scaling = 0.5
+		self.mouse_higher_scaling = 2
 		self.mouse_movement_duration = 0.06
+
+		self.running = False
 
 		self.mutex = Lock()
 		self.mouse_controller = MouseController()
@@ -76,13 +79,15 @@ class ArduinoController:
 		if self.ser is None:
 			return
 		self.mouse_controller.start()
+		self.running = True
+		print("started arduino")
 		t = Thread(target=self.data_loop, args=(self,))
 		t.start()
 
 	def data_loop(self, _):
 		start_time = 0
 		print("began")
-		while True:
+		while self.running:
 			payload = self.ser.read(5)  # reading 5 bytes of data
 			size = len(payload)
 
@@ -115,9 +120,9 @@ class ArduinoController:
 					scaling = self.mouse_higher_scaling
 				else:
 					scaling = self.mouse_lower_scaling
-				UD_scaling = scaling / 2
+				UD_scaling = scaling * 2
 				if abs(UD) > self.mouse_dead_zone or abs(LR) > self.mouse_dead_zone:
-					self.mouse_controller.set_direction(LR / scaling, UD / UD_scaling)
+					self.mouse_controller.set_direction(LR * scaling, UD * UD_scaling)
 				else:
 					self.mouse_controller.set_direction(0, 0)
 
@@ -176,12 +181,17 @@ class ArduinoController:
 					elif elapsed > self.short_sip_time:
 						self.sip = True
 					self.below_threshold = False
+		print("stopped arduino")
+
+	def stop(self):
+		self.mouse_controller.stop()
+		self.running = False
 
 	def set_callback(self, command, function):
-		self.functions[command] = function
+		self.callbacks[command] = function
 
 	def handle_callback(self, command):
-		self.functions[command]()
+		self.functions[self.callbacks[command]]()
 
 	def handle_nothing(self):
 		pass
@@ -248,7 +258,7 @@ class ArduinoController:
 
 	def set_mouse_speed(self, mouse_speed):
 		self.mouse_lower_scaling = mouse_speed
-		self.mouse_higher_scaling = mouse_speed / 2
+		self.mouse_higher_scaling = mouse_speed * 2
 
 
 class MouseController:
@@ -271,6 +281,9 @@ class MouseController:
 	def start(self):
 		t = Thread(target=self.loop, args=(self,))
 		t.start()
+
+	def stop(self):
+		self.running = False
 
 	def set_direction(self, dx, dy):
 		self.mutex.acquire()
@@ -299,6 +312,7 @@ class MouseController:
 					if self.y > self.height:
 						self.y = self.height
 					mouse.move(self.x, self.y)
+		print("stopped mouse controller")
 
 
 if __name__ == "__main__":

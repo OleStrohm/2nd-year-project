@@ -40,15 +40,13 @@ class App:
         # self.commands.load_cmds("format", 'backend/cmds_format.txt')
         arduino = ArduinoController()
         arduino.start()
-        text_to_speech = SpeechToTextController(self, stt_callback)
-        text_to_speech.start()
+        speech_to_text = SpeechToTextController(self, stt_callback)
+        speech_to_text.start()
 
-        self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands)
+        self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands, speech_to_text)
         print("Initialized")
+        self.gui.start()
 
-    def on_close(self):
-        pass
 
 if __name__ == "__main__":
     app = App()
-    kb.wait("escape")

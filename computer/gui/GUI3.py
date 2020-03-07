@@ -36,10 +36,7 @@ class GUI:
 		print(self.settings['start_mode'])
 		self.current_mode = self.settings['start_mode']
 		print(self.current_mode)
-		self.t = Thread(target=self.main_loop, args=(self,))
-		self.t.start()
 
-	def main_loop(self, _):
 		# set up root window
 		# self.root = tk.Tk()
 		self.root = ThemedTk(theme="arc", themebg=True)
@@ -103,12 +100,16 @@ class GUI:
 			self.off_transcript()
 		self.root.protocol('WM_DELETE_WINDOW', self.close_program)
 
+	def start(self):
 		self.root.mainloop()
+		print("closed gui")
 
 	def close_program(self):
 		print('Program should do complete exit')
-		self.arduino.stop()
-		self.speech_to_text.stop()
+		if self.arduino != None:
+			self.arduino.stop()
+		if self.speech_to_text != None:
+			self.speech_to_text.stop()
 		self.root.destroy()
 
 	def settings_start(self):
