@@ -2,11 +2,11 @@ import tkinter as tk
 import tkinter.messagebox
 from ttkthemes import ThemedTk
 from tkinter import ttk
+from ttkwidgets import TickScale
 from word2cmd import CommandController
 
 from threading import Thread
 from arduinoControl import ArduinoController
-from speech_to_text import SpeechToTextController
 from threading import Lock
 import keyboard as kb
 
@@ -159,7 +159,7 @@ class GUI:
 		self.changes = True
 
 	def sip_close(self, s_sip, s_puff, l_sip, l_puff, d_sip, d_puff, window):
-		if (self.changes):
+		if self.changes:
 			default_msg = tk.messagebox.askyesno(title='Update sip settings',
 												 message='You have unsaved changes. Do you wish to save these changes?')
 			if default_msg:
@@ -178,12 +178,9 @@ class GUI:
 		l_speed.grid(row=6, column=0, columnspan=2, sticky='news')
 		l_smin = ttk.Label(master=joy_page, text='Min size 0').grid(row=7, column=0, sticky='nes')
 		l_smax = ttk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
-		dead_zone = ttk.Scale(master=joy_page, from_=0, to=20, orient='horizontal')
+		dead_zone = TickScale(master=joy_page, from_=0, to=20, orient='horizontal', digits = 0, command=lambda e: self.settings_update(e, 'dead_zone', self.arduino.set_mouse_dead_zone))
 		dead_zone.set(self.settings['dead_zone'])  # update with settings value
 		dead_zone.grid(row=7, column=1, columnspan=1, sticky='news')
-		dead_zone.bind("<ButtonRelease>",
-					   lambda event: self.settings_update(dead_zone.get(), 'dead_zone',
-														  self.arduino.set_mouse_dead_zone))
 
 		# set the speed of the cursor
 		l_speed = ttk.Label(master=joy_page, text='Cursor speed')
@@ -544,7 +541,8 @@ class GUI:
 												 message='You have upadated your sip & puff settings. Do you wish to make the settings changes to your default settings?')
 			if default_msg:
 				self.save(self.settings_file, self.settings)
-
+			else:
+				self.changes = False
 	def move(self):
 		# set up grid
 		self.root.grid_columnconfigure(0, weight=2)
@@ -783,7 +781,7 @@ def setting_config(filename):
 
 
 if __name__ == "__main__":
-	stt = SpeechToTextController(None, lambda t, f: print(t))
+	stt = None#SpeechToTextController(None, lambda t, f: print(t))
 	arduino = ArduinoController()
 	# arduino = None
 	commands = CommandController()
