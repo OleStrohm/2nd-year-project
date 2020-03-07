@@ -7,7 +7,7 @@ from threading import Lock
 import keyboard as kb
 
 class GUI:
-    """ sets up the main window and all the graphics """
+    # sets up the main window and all the graphics
 
     def __init__(self, path, modes_file, settings_file, arduino, commands):
         self.commands = commands
@@ -192,7 +192,26 @@ class GUI:
 
     def settings_sip(self):
         page = tk.Toplevel(self.main_menu)
-        page.title('Settings Sip & Puff')
+        page.title(' Advanced Settings Sip & Puff')
+
+        btn_advanced = tk.Button(master = page, text = 'Advanced Sip & Puff settings', command = self.advanced_settings_sip )
+        btn_advanced.grid(row = 2, column = 0)
+
+        # Save Button
+        btn_save_sp = tk.Button(master=page, text='Save Settings as Default',
+                                command=lambda: self.save(self.settings_file, self.settings))
+        btn_save_sp.grid(row=3, column=0, columnspan=2)
+
+        # Close Button
+        btn_close_sp = tk.Button(master=page, text='Close Sip & Puff Settings',
+                                 command=lambda: self.close_settings('Sip & Puff', page))
+        btn_close_sp.grid(row=4, column=0, columnspan=2, sticky='news')
+        page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Sip & Puff', page))
+
+
+    def advanced_settings_sip(self):
+        page = tk.Toplevel(self.main_menu)
+        page.title(' Advanced Settings Sip & Puff')
         #Sip
         l_sip = tk.Label(master = page, text = 'Sip Settings')
         l_sip.grid(row= 0, column = 0, columnspan = 4)
@@ -294,12 +313,12 @@ class GUI:
                                                                      self.arduino.set_puff_threshold))
 
         # Save Button
-        btn_save_sp = tk.Button(master=page, text='Save Settings as Default',
+        btn_save_sp = tk.Button(master=page, text='Save Advanced Settings as Default',
                                 command=lambda: self.save(self.settings_file, self.settings))
         btn_save_sp.grid(row=9, column=3, columnspan=2)
 
         # Close Button
-        btn_close_sp = tk.Button(master=page, text='Close Sip & Puff Settings', command=lambda: self.close_settings('Sip & Puff', page))
+        btn_close_sp = tk.Button(master=page, text='Close Advanced Sip & Puff Settings', command=lambda: self.close_settings('Sip & Puff', page))
         btn_close_sp.grid(row=10, column=3, columnspan=2, sticky='news')
         page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Sip & Puff', page))
 
