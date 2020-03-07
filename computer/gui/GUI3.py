@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox
+from tkinter import ttk
 
 from threading import Thread
 #from arduinoControl import ArduinoController
@@ -7,7 +8,7 @@ from threading import Lock
 import keyboard as kb
 
 class GUI:
-    """ sets up the main window and all the graphics """
+    # sets up the main window and all the graphics
 
     def __init__(self, path, modes_file, settings_file, arduino, commands):
         self.commands = commands
@@ -56,33 +57,33 @@ class GUI:
         self.root.grid_rowconfigure(0, weight=1)
         # Buttons
         # Menu buttons
-        self.btn_exit = tk.Button(self.root, text='Exit')
+        self.btn_exit = ttk.Button(self.root, text='Exit')
         self.btn_exit['command'] = lambda: self.close_program()  # note: when we turn this to an app change to root.quit
         self.btn_exit.grid(row=0, column=0, sticky='nsew')
 
-        self.btn_move = tk.Button(self.root, text='Minimize')
+        self.btn_move = ttk.Button(self.root, text='Minimize')
         self.btn_move['command'] = lambda: self.move()
         self.btn_move.grid(row=0, column=4, sticky='nsew')
 
-        self.btn_transcription = tk.Button(self.root, text = 'something')
+        self.btn_transcription = ttk.Button(self.root, text = 'something')
         self.btn_transcription.grid(row=0, column = 2, sticky = 'news')
 
-        self.btn_hide = tk.Button(self.root, text='Hide')
+        self.btn_hide = ttk.Button(self.root, text='Hide')
         self.btn_hide['command'] = lambda: self.hide()
         self.btn_hide.grid(row=0, column=5, sticky='nsew')
 
-        self.btn_settings = tk.Button(self.root, text='Settings')
+        self.btn_settings = ttk.Button(self.root, text='Settings')
         self.btn_settings['command'] = lambda: self.settings_start()
         self.btn_settings.grid(row=0, column=6, sticky='nsew')
         # Transcription setup as a label
-        self.l_transcription = tk.Label(self.root, text='Transcript runs here', bg='black', fg='white', anchor='nw',
-                                        height=2, width = 80, wraplength = 0.6*self.width)
+        self.l_transcription = ttk.Label(self.root, text='Transcript runs here', anchor='nw', background = 'black', foreground = 'white',
+                                         width = 80, wraplength = 0.6*self.width)
         self.l_transcription.grid(row=0, column=3, sticky='nsew')
 
         # mode menu
         self.m_current_mode = tk.StringVar()
         self.m_current_mode.set(self.current_mode)
-        self.m_mode = tk.OptionMenu(self.root, self.m_current_mode, *list(self.modes.keys()), command=self.change_mode)
+        self.m_mode = ttk.OptionMenu(self.root, self.m_current_mode, *list(self.modes.keys()), command=self.change_mode)
         length = max(list(self.modes.keys()), key=len)
         print (length)
         self.m_mode.config(width = len(length))
@@ -116,22 +117,22 @@ class GUI:
         self.main_menu.grid_rowconfigure(3, weight=1)
         self.main_menu.grid_columnconfigure(3, weight=1)
 
-        btn_js = tk.Button(self.main_menu, text='Joy Stick', command=lambda: self.settings_joy())
+        btn_js = ttk.Button(self.main_menu, text='Joy Stick', command=lambda: self.settings_joy())
         btn_js.grid(row=1, column=1, sticky='news')
 
-        btn_snp = tk.Button(self.main_menu, text='Sip & Puff', command=lambda: self.settings_sip())
+        btn_snp = ttk.Button(self.main_menu, text='Sip & Puff', command=lambda: self.settings_sip())
         btn_snp.grid(row=1, column=2, sticky='news')
 
-        btn_stt = tk.Button(self.main_menu, text='Speach to Text', command=lambda: self.settings_speech2text())
+        btn_stt = ttk.Button(self.main_menu, text='Speach to Text', command=lambda: self.settings_speech2text())
         btn_stt.grid(row=2, column=1, sticky='news')
 
-        btn_def = tk.Button(self.main_menu, text='Window Options', command=lambda: self.settings_gui())
+        btn_def = ttk.Button(self.main_menu, text='Window Options', command=lambda: self.settings_gui())
         btn_def.grid(row=2, column=2, sticky='news')
 
-        btn_factory = tk.Button(self.main_menu, text='Factory Settings', command=lambda: self.factory_settings())
+        btn_factory = ttk.Button(self.main_menu, text='Factory Settings', command=lambda: self.factory_settings())
         btn_factory.grid(row=3, column=4, columnspan=1, sticky='es')
 
-        btn_close = tk.Button(self.main_menu, text='Close settings', command=self.main_menu.destroy)
+        btn_close = ttk.Button(self.main_menu, text='Close settings', command=self.main_menu.destroy)
         btn_close.grid(row=4, column=1, columnspan=2, sticky='s')
 
         #self.main_menu.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('all', self.main_menu))
@@ -152,57 +153,76 @@ class GUI:
         joy_page = tk.Toplevel(self.main_menu)
         joy_page.title('Settings Joystick')
         # set size of dead zone
-        l_speed = tk.Label(master=joy_page, text='Dead zone size')
+        l_speed = ttk.Label(master=joy_page, text='Dead zone size')
         l_speed.grid(row=6, column=0, columnspan=2, sticky='news')
-        l_smin = tk.Label(master=joy_page, text='Min size 0').grid(row=7, column=0, sticky='nes')
-        l_smax = tk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
-        dead_zone = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
+        l_smin = ttk.Label(master=joy_page, text='Min size 0').grid(row=7, column=0, sticky='nes')
+        l_smax = ttk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
+        dead_zone = ttk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
         dead_zone.set(self.settings['dead_zone'])  # update with settings value
         dead_zone.grid(row=7, column=1, columnspan=1, sticky='news')
         dead_zone.bind("<ButtonRelease>",
                        lambda event: self.settings_update(dead_zone.get(), 'dead_zone', self.arduino.set_dead_zone))
 
         # set the speed of the cursor
-        l_speed = tk.Label(master=joy_page, text='Cursor speed')
+        l_speed = ttk.Label(master=joy_page, text='Cursor speed')
         l_speed.grid(row=0, column=0, columnspan=2, sticky='news')
-        l_smin = tk.Label(master=joy_page, text='Min 0').grid(row=1, column=0, sticky='nes')
-        l_smax = tk.Label(master=joy_page, text='100 Max').grid(row=1, column=2, sticky='nws')
-        slider_speed = tk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
+        l_smin = ttk.Label(master=joy_page, text='Min 0').grid(row=1, column=0, sticky='nes')
+        l_smax = ttk.Label(master=joy_page, text='100 Max').grid(row=1, column=2, sticky='nws')
+        slider_speed = ttk.Scale(master=joy_page, from_=0, to=100, orient='horizontal')
         slider_speed.set(self.settings['Cursor_speed'])  # update with settings value
         slider_speed.grid(row=1, column=1, columnspan=1, sticky='news')
         slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'Cursor_speed', print))
 
         # Set Up High Spped Theshold
-        l_high_speed = tk.Label(master=joy_page, text='High Speed Thereshold')
+        l_high_speed = ttk.Label(master=joy_page, text='High Speed Thereshold')
         l_high_speed.grid(row=4, column=0, columnspan=3, sticky='ews')
-        l_min = tk.Label(master=joy_page, text='Min 0').grid(row=5, column=0, sticky='nes')
-        l_mix = tk.Label(master=joy_page, text='512 Max ').grid(row=5, column=2, sticky='nws')
-        slider_high_speed = tk.Scale(master=joy_page, from_=0, to=512, orient='horizontal', )
+        l_min = ttk.Label(master=joy_page, text='Min 0').grid(row=5, column=0, sticky='nes')
+        l_mix = ttk.Label(master=joy_page, text='512 Max ').grid(row=5, column=2, sticky='nws')
+        slider_high_speed = ttk.Scale(master=joy_page, from_=0, to=512, orient='horizontal', )
         slider_high_speed.set(self.settings['high_speed'])  # update with settings value
         slider_high_speed.grid(row=5, column=1, sticky='news')
         slider_high_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_high_speed.get(), 'high_speed', print))
         # Save Button
-        btn_save_js = tk.Button(master=joy_page, text='Save Settings as Default',
+        btn_save_js = ttk.Button(master=joy_page, text='Save Settings as Default',
                                  command=lambda: self.save(self.settings_file, self.settings))
         btn_save_js.grid(row=8, column=0, columnspan = 3)
         # Close Button
-        btn_close_js = tk.Button(master=joy_page, text='Close Joystick Settings', command=lambda: self.close_settings('Joystick', joy_page))
+        btn_close_js = ttk.Button(master=joy_page, text='Close Joystick Settings', command=lambda: self.close_settings('Joystick', joy_page))
         btn_close_js.grid(row=9, column=0, columnspan = 3,sticky='news')
         joy_page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Joystick', joy_page))
 
     def settings_sip(self):
         page = tk.Toplevel(self.main_menu)
-        page.title('Settings Sip & Puff')
+        page.title(' Advanced Settings Sip & Puff')
+
+        btn_advanced = ttk.Button(master = page, text = 'Advanced Sip & Puff settings', command = self.advanced_settings_sip )
+        btn_advanced.grid(row = 2, column = 0)
+
+        # Save Button
+        btn_save_sp = ttk.Button(master=page, text='Save Settings as Default',
+                                command=lambda: self.save(self.settings_file, self.settings))
+        btn_save_sp.grid(row=3, column=0, columnspan=2)
+
+        # Close Button
+        btn_close_sp = ttk.Button(master=page, text='Close Sip & Puff Settings',
+                                 command=lambda: self.close_settings('Sip & Puff', page))
+        btn_close_sp.grid(row=4, column=0, columnspan=2, sticky='news')
+        page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Sip & Puff', page))
+
+
+    def advanced_settings_sip(self):
+        page = tk.Toplevel(self.main_menu)
+        page.title(' Advanced Settings Sip & Puff')
         #Sip
-        l_sip = tk.Label(master = page, text = 'Sip Settings')
+        l_sip = ttk.Label(master = page, text = 'Sip Settings')
         l_sip.grid(row= 0, column = 0, columnspan = 4)
 
         # set up pressure sensetivity
-        sip_l_pressure = tk.Label(master=page, text='Pressure Threshold')
+        sip_l_pressure = ttk.Label(master=page, text='Pressure Threshold')
         sip_l_pressure.grid(row=1, column=0, columnspan=3, sticky='w')
-        sip_l_pmin = tk.Label(master=page, text='Min 0').grid(row=2, column=0, sticky='nes')
-        sip_l_pmax = tk.Label(master=page, text='100 Max').grid(row=2, column=3, sticky='nws')
-        sip_slider_pressure = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        sip_l_pmin = ttk.Label(master=page, text='Min 0').grid(row=2, column=0, sticky='nes')
+        sip_l_pmax = ttk.Label(master=page, text='100 Max').grid(row=2, column=3, sticky='nws')
+        sip_slider_pressure = ttk.Scale(master=page, from_=0, to=100, orient='horizontal')
         sip_slider_pressure.set(self.settings['sip_pressure_threshold'])  # update with settings value
         sip_slider_pressure.grid(row=2, column=1, columnspan=2, sticky='news')
         sip_slider_pressure.bind("<ButtonRelease>",
@@ -210,33 +230,33 @@ class GUI:
 
 
         # Length of long
-        sip_l_long_time = tk.Label(master=page, text='Length of Long pressure')
+        sip_l_long_time = ttk.Label(master=page, text='Length of Long pressure')
         sip_l_long_time.grid(row=3, column=0, columnspan=4, sticky='w')
-        sip_l_tl_min = tk.Label(master=page, text='Min 0').grid(row=4, column=0, sticky='nes')
-        sip_l_tl_max = tk.Label(master=page, text='100 Max').grid(row=4, column=3, sticky='nws')
-        sip_slider_long_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        sip_l_tl_min = ttk.Label(master=page, text='Min 0').grid(row=4, column=0, sticky='nes')
+        sip_l_tl_max = ttk.Label(master=page, text='100 Max').grid(row=4, column=3, sticky='nws')
+        sip_slider_long_time = ttk.Scale(master=page, from_=0, to=100, orient='horizontal')
         sip_slider_long_time.set(self.settings['sip_long_time'])  # update with settings value
         sip_slider_long_time.grid(row=4, column=1, columnspan=2, sticky='news')
         sip_slider_long_time.bind("<ButtonRelease>",
                               lambda event: self.settings_update(sip_slider_long_time.get(), 'sip_long_time'))
 
         # Length of short
-        sip_l_short_time = tk.Label(master=page, text='Length of Short pressure')
+        sip_l_short_time = ttk.Label(master=page, text='Length of Short pressure')
         sip_l_short_time.grid(row=5, column=0, columnspan=4, sticky='w')
-        sip_l_tl_min = tk.Label(master=page, text='Min 0').grid(row=6, column=0, sticky='nes')
-        sip_l_tl_max = tk.Label(master=page, text='100 Max').grid(row=6, column=3, sticky='nws')
-        sip_slider_short_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        sip_l_tl_min = ttk.Label(master=page, text='Min 0').grid(row=6, column=0, sticky='nes')
+        sip_l_tl_max = ttk.Label(master=page, text='100 Max').grid(row=6, column=3, sticky='nws')
+        sip_slider_short_time = ttk.Scale(master=page, from_=0, to=100, orient='horizontal')
         sip_slider_short_time.set(self.settings['sip_short_time'])  # update with settings value
         sip_slider_short_time.grid(row=6, column=1, columnspan=2, sticky='news')
         sip_slider_short_time.bind("<ButtonRelease>",
                               lambda event: self.settings_update(sip_slider_short_time.get(), 'sip_short_time'))
 
         #Double time
-        sip_l_d_time = tk.Label(master=page, text='Double Time')
+        sip_l_d_time = ttk.Label(master=page, text='Double Time')
         sip_l_d_time.grid(row=7, column=0, columnspan=3, sticky='w')
-        sip_l_dmin = tk.Label(master=page, text='Min 0').grid(row=8, column=0, sticky='nes')
-        sip_l_dmax = tk.Label(master=page, text='100 Max').grid(row=8, column=3, sticky='nws')
-        slider_sip_d_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        sip_l_dmin = ttk.Label(master=page, text='Min 0').grid(row=8, column=0, sticky='nes')
+        sip_l_dmax = ttk.Label(master=page, text='100 Max').grid(row=8, column=3, sticky='nws')
+        slider_sip_d_time = ttk.Scale(master=page, from_=0, to=100, orient='horizontal')
         slider_sip_d_time.set(self.settings['sip_double_time'])  # update with settings value
         slider_sip_d_time.grid(row=8, column=1, columnspan=2, sticky='news')
         slider_sip_d_time.bind("<ButtonRelease>",
@@ -244,15 +264,15 @@ class GUI:
                                                                      self.arduino.set_puff_threshold))
 
         #Puff
-        l_puff = tk.Label(master=page, text='Puff Settings')
+        l_puff = ttk.Label(master=page, text='Puff Settings')
         l_puff.grid(row=0, column=4, columnspan=4)
 
         # set up pressure sensetivity
-        puff_l_pressure = tk.Label(master=page, text='Pressure Threshold')
+        puff_l_pressure = ttk.Label(master=page, text='Pressure Threshold')
         puff_l_pressure.grid(row=1, column=4, columnspan=3, sticky='news')
-        puff_l_pmin = tk.Label(master=page, text='Min 0').grid(row=2, column=4, sticky='nes')
-        puff_l_pmax = tk.Label(master=page, text='100 Max').grid(row=2, column=7, sticky='nws')
-        puff_slider_pressure = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        puff_l_pmin = ttk.Label(master=page, text='Min 0').grid(row=2, column=4, sticky='nes')
+        puff_l_pmax = ttk.Label(master=page, text='100 Max').grid(row=2, column=7, sticky='nws')
+        puff_slider_pressure = ttk.Scale(master=page, from_=0, to=100, orient='horizontal')
         puff_slider_pressure.set(self.settings['puff_pressure_threshold'])  # update with settings value
         puff_slider_pressure.grid(row=2, column=5, columnspan=2, sticky='news')
         puff_slider_pressure.bind("<ButtonRelease>",
@@ -260,33 +280,33 @@ class GUI:
                                                                     self.arduino.set_puff_threshold))
 
         # Length of long
-        puff_l_long_time = tk.Label(master=page, text='Length of Long pressure')
+        puff_l_long_time = ttk.Label(master=page, text='Length of Long pressure')
         puff_l_long_time.grid(row=3, column=4, columnspan=4, sticky='news')
-        puff_l_tl_min = tk.Label(master=page, text='Min 0').grid(row=4, column=4, sticky='nes')
-        puff_l_tl_max = tk.Label(master=page, text='100 Max').grid(row=4, column=7, sticky='nws')
-        puff_slider_long_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        puff_l_tl_min = ttk.Label(master=page, text='Min 0').grid(row=4, column=4, sticky='nes')
+        puff_l_tl_max = ttk.Label(master=page, text='100 Max').grid(row=4, column=7, sticky='nws')
+        puff_slider_long_time = ttk.Scale(master=page, from_=0, to=100, orient='horizontal')
         puff_slider_long_time.set(self.settings['puff_long_time'])  # update with settings value
         puff_slider_long_time.grid(row=4, column=5, columnspan=2, sticky='news')
         puff_slider_long_time.bind("<ButtonRelease>",
                                   lambda event: self.settings_update(puff_slider_long_time.get(), 'puff_long_time'))
 
         # Length of short
-        puff_l_short_time = tk.Label(master=page, text='Length of Short pressure')
+        puff_l_short_time = ttk.Label(master=page, text='Length of Short pressure')
         puff_l_short_time.grid(row=5, column=4, columnspan=4, sticky='news')
-        puff_l_tl_min = tk.Label(master=page, text='Min 0').grid(row=6, column=4, sticky='nes')
-        puff_l_tl_max = tk.Label(master=page, text='100 Max').grid(row=6, column=7, sticky='nws')
-        puff_slider_short_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        puff_l_tl_min = ttk.Label(master=page, text='Min 0').grid(row=6, column=4, sticky='nes')
+        puff_l_tl_max = ttk.Label(master=page, text='100 Max').grid(row=6, column=7, sticky='nws')
+        puff_slider_short_time = ttk.Scale(master=page, from_=0, to=100, orient='horizontal')
         puff_slider_short_time.set(self.settings['puff_short_time'])  # update with settings value
         puff_slider_short_time.grid(row=6, column=5, columnspan=2, sticky='news')
         puff_slider_short_time.bind("<ButtonRelease>",
                                   lambda event: self.settings_update(puff_slider_short_time.get(), 'puff_short_time'))
 
         #Double time
-        puff_l_d_time = tk.Label(master=page, text='Double Time')
+        puff_l_d_time = ttk.Label(master=page, text='Double Time')
         puff_l_d_time.grid(row=7, column=4, columnspan=3, sticky='news')
-        puff_l_dmin = tk.Label(master=page, text='Min 0').grid(row=8, column=4, sticky='nes')
-        puff_l_dmax = tk.Label(master=page, text='100 Max').grid(row=8, column=7, sticky='nws')
-        slider_puff_d_time = tk.Scale(master=page, from_=0, to=100, orient='horizontal')
+        puff_l_dmin = ttk.Label(master=page, text='Min 0').grid(row=8, column=4, sticky='nes')
+        puff_l_dmax = ttk.Label(master=page, text='100 Max').grid(row=8, column=7, sticky='nws')
+        slider_puff_d_time = ttk.Scale(master=page, from_=0, to=100, orient='horizontal')
         slider_puff_d_time.set(self.settings['puff_double_time'])  # update with settings value
         slider_puff_d_time.grid(row=8, column=5, columnspan=2, sticky='news')
         slider_puff_d_time.bind("<ButtonRelease>",
@@ -294,12 +314,12 @@ class GUI:
                                                                      self.arduino.set_puff_threshold))
 
         # Save Button
-        btn_save_sp = tk.Button(master=page, text='Save Settings as Default',
+        btn_save_sp = ttk.Button(master=page, text='Save Advanced Settings as Default',
                                 command=lambda: self.save(self.settings_file, self.settings))
         btn_save_sp.grid(row=9, column=3, columnspan=2)
 
         # Close Button
-        btn_close_sp = tk.Button(master=page, text='Close Sip & Puff Settings', command=lambda: self.close_settings('Sip & Puff', page))
+        btn_close_sp = ttk.Button(master=page, text='Close Advanced Sip & Puff Settings', command=lambda: self.close_settings('Sip & Puff', page))
         btn_close_sp.grid(row=10, column=3, columnspan=2, sticky='news')
         page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Sip & Puff', page))
 
@@ -307,24 +327,24 @@ class GUI:
         page = tk.Toplevel(self.main_menu)
         page.title('Settings Speech to text')
         # Chose mode to start program with
-        l_startm = tk.Label(master=page, text="Set default mode at start up: ")
+        l_startm = ttk.Label(master=page, text="Set default mode at start up: ")
         l_startm.grid(row=0, column=0, columnspan=2)
 
         start_mode = tk.StringVar()
         start_mode.set(self.settings['start_mode'])
-        m_select_start = tk.OptionMenu(page, start_mode, *list(self.modes.keys()), command = lambda select: self.settings_update(select, 'start_mode'))
+        m_select_start = ttk.OptionMenu(page, start_mode, *list(self.modes.keys()), command = lambda select: self.settings_update(select, 'start_mode'))
         m_select_start.grid(row=1, column=0, columnspan=2)
 
-        btn_set_start = tk.Button(master=page, text='Make default on Start up',
+        btn_set_start = ttk.Button(master=page, text='Make default on Start up',
                                   command=lambda: self.save(self.settings_file, self.settings))
         btn_set_start.grid(row=2, column=0, columnspan=2)
 
         # Selection to trun on/off
-        l_trans_onoff = tk.Label(master = page, text = 'Set transcription on/off')
+        l_trans_onoff = ttk.Label(master = page, text = 'Set transcription on/off')
         l_trans_onoff.grid(row = 3, column = 1, columnspan = 2)
 
         # make check box selection
-        check_boxes =tk.Frame(page)
+        check_boxes =ttk.Frame(page)
         check_boxes.grid(row = 4, column = 0,columnspan = 2, sticky = 'news')
         modes_list = list(self.modes.keys())
         index = list(range(len(modes_list)))
@@ -332,16 +352,16 @@ class GUI:
             index[i] = tk.IntVar()
             print(self.modes[modes_list[i]].trans)
             index[i].set(self.modes[modes_list[i]].trans)
-            tk.Checkbutton(master=check_boxes, text=modes_list[i], var  = index[i], command = lambda: self.update_trans(modes_list,index)).grid(row = i, column = 0)
+            ttk.Checkbutton(master=check_boxes, text=modes_list[i], var  = index[i], command = lambda: self.update_trans(modes_list,index)).grid(row = i, column = 0)
 
-        btn_update_trans_set = tk.Button(master=page, text = 'Update transcription default', command = self.save_trans)
+        btn_update_trans_set = ttk.Button(master=page, text = 'Update transcription default', command = self.save_trans)
         btn_update_trans_set.grid(row=5, column=0, columnspan=2)
 
         #Advanced mode settings
-        btn_mode_adv = tk.Button(master=page, text = 'Advance Mode Settings', command = self.additional_mode)
+        btn_mode_adv = ttk.Button(master=page, text = 'Advance Mode Settings', command = self.additional_mode)
         btn_mode_adv.grid(row =6, column = 0, columnspan = 2)
         # Close Button
-        btn_close_stt = tk.Button(master=page, text='Close Speech to Text Settings', command=lambda: self.save_sip(page))
+        btn_close_stt = ttk.Button(master=page, text='Close Speech to Text Settings', command=lambda: self.save_sip(page))
         btn_close_stt.grid(row=7, column=0, columnspan=2, sticky='news')
 
         page.protocol('WM_DELETE_WINDOW', lambda: self.save_sip(page))
@@ -351,42 +371,42 @@ class GUI:
         page.title('Advanced mode Settings')
 
         # Create New Mode
-        l_cmd_add_mode = tk.Label(master=page, text='Name of mode:')
+        l_cmd_add_mode = ttk.Label(master=page, text='Name of mode:')
         l_cmd_add_mode.grid(row=5, column=0)
 
-        txt_box_mode = tk.Entry(master=page)
+        txt_box_mode = ttk.Entry(master=page)
         txt_box_mode.grid(row=5, column=1)
 
         new_trans = tk.IntVar
-        check_trans = tk.Checkbutton(master=page, text='Transcription', var=new_trans)
+        check_trans = ttk.Checkbutton(master=page, text='Transcription', var=new_trans)
         check_trans.grid(row = 6, column = 0, columnspan = 2, sticky = 'w')
 
-        btn_create_mode = tk.Button(master=page, text='Add new mode',
+        btn_create_mode = ttk.Button(master=page, text='Add new mode',
                                     command=lambda: self.create_mode(txt_box_mode.get(), new_trans, txt_box_mode))
         btn_create_mode.grid(row=7, column=0, columnspan=2)
 
         # Add new command to mode
-        l_cmd_mode = tk.Label(master=page, text='Add cmd to mode:')
+        l_cmd_mode = ttk.Label(master=page, text='Add cmd to mode:')
         l_cmd_mode.grid(row=11, column=0, columnspan=2)
 
         current_modes = tk.StringVar()
         current_modes.set(self.current_mode)
-        m_select_modeadd = tk.OptionMenu(page, current_modes, *list(self.modes.keys()))
+        m_select_modeadd = ttk.OptionMenu(page, current_modes, *list(self.modes.keys()))
         m_select_modeadd.grid(row=12, column=0, columnspan=2)
 
-        l_cmd_key_word = tk.Label(master=page, text='Key word to cmd:')
+        l_cmd_key_word = ttk.Label(master=page, text='Key word to cmd:')
         l_cmd_key_word.grid(row=13, column=0)
 
-        txt_key_word = tk.Entry(master=page)
+        txt_key_word = ttk.Entry(master=page)
         txt_key_word.grid(row=13, column=1)
 
-        l_cmd = tk.Label(master=page, text='Desired cmd:')
+        l_cmd = ttk.Label(master=page, text='Desired cmd:')
         l_cmd.grid(row=14, column=0)
 
-        txt_cmd = tk.Entry(master=page)
+        txt_cmd = ttk.Entry(master=page)
         txt_cmd.grid(row=14, column=1)
 
-        btn_addmode = tk.Button(master=page, text='Add command',
+        btn_addmode = ttk.Button(master=page, text='Add command',
                                 command=lambda: self.add_cmd(current_modes.get(), txt_key_word.get(), txt_cmd.get(), txt_key_word, txt_cmd))
         btn_addmode.grid(row=15, column=0, columnspan=2)
 
