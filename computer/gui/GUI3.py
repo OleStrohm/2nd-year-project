@@ -23,14 +23,15 @@ class GUI:
 
         for key in self.modes:
             self.commands.load_cmds(key, path + self.modes[key].file_name)
-        print("Command modes: ", commands.modes)
 
         self.root = None
         self.width = None
         self.height = None
         self.changes = False
         self.transcription = self.modes[self.settings['start_mode']].trans
+        print(self.settings['start_mode'])
         self.current_mode = self.settings['start_mode']
+        print(self.current_mode)
         self.t = Thread(target=self.main_loop, args=(self,))
         self.t.start()
 
@@ -84,10 +85,8 @@ class GUI:
         # mode menu
         self.m_current_mode = tk.StringVar()
         self.m_current_mode.set(self.current_mode)
+        print(self.current_mode)
         self.m_mode = ttk.OptionMenu(self.root, self.m_current_mode, *list(self.modes.keys()), command=self.change_mode)
-        length = max(list(self.modes.keys()), key=len)
-        print (length)
-        self.m_mode.config(width = len(length))
         self.m_mode.grid(row=0, column=1, sticky='nsew')
 
         if self.transcription:
@@ -197,17 +196,75 @@ class GUI:
         page.title(' Advanced Settings Sip & Puff')
 
         btn_advanced = ttk.Button(master = page, text = 'Advanced Sip & Puff settings', command = self.advanced_settings_sip )
-        btn_advanced.grid(row = 2, column = 0)
+        btn_advanced.grid(row = 5, column = 1, columnspan = 2)
+
+        #Set commands to sip and puffs
+        cmd_list = self.settings['sip_cmds']
+        l_sip_set = ttk.Label(master = page, text = 'Set up the sip and puff commands to desired action')
+        l_sip_set.grid(row = 0, column  = 0, columnspan = 2)
+
+        l_s_sip = ttk.Label(master=page, text = 'Single Sip')
+        l_s_sip.grid(row = 1, column = 0, columnspan =1 )
+
+        s_sip_var = tk.StringVar()
+        s_sip_var.set(self.settings['s_sip'])
+        menu_s_sip = ttk.OptionMenu(page, s_sip_var,*cmd_list)
+        menu_s_sip.grid(row =1 , column = 1)
+
+        l_s_puff = ttk.Label(master=page, text='Single Puff')
+        l_s_puff.grid(row=1, column=2, columnspan=1)
+
+        s_puff_var = tk.StringVar()
+        s_puff_var.set(self.settings['s_puff'])
+        menu_s_puff = ttk.OptionMenu(page, s_puff_var, *cmd_list)
+        menu_s_puff.grid(row = 1, column = 3, columnspan = 1)
+
+        l_d_sip = ttk.Label(master=page, text='Double Sip')
+        l_d_sip.grid(row=2, column=0, columnspan=1)
+
+        d_sip_var = tk.StringVar()
+        d_sip_var.set(self.settings['d_sip'])
+        menu_d_sip = ttk.OptionMenu(page, d_sip_var, *cmd_list)
+        menu_d_sip.grid(row=2, column=1, columnspan=1)
+
+        l_d_puff = ttk.Label(master=page, text='Double Puff')
+        l_d_puff.grid(row=2, column=2, columnspan=1)
+
+        d_puff_var = tk.StringVar()
+        d_puff_var.set(self.settings['d_puff'])
+        menu_d_puff = ttk.OptionMenu(page, d_puff_var, *cmd_list)
+        menu_d_puff.grid(row=2, column=3, columnspan=1)
+
+
+        l_l_sip = ttk.Label(master=page, text='Long Sip')
+        l_l_sip.grid(row=3, column=0, columnspan=1)
+
+        l_sip_var = tk.StringVar()
+        l_sip_var.set(self.settings['l_sip'])
+        menu_l_sip = ttk.OptionMenu(page, l_sip_var, *cmd_list)
+        menu_l_sip.grid(row=3, column=1, columnspan=1)
+
+        l_l_puff = ttk.Label(master=page, text='Long Puff')
+        l_l_puff.grid(row=3, column=2, columnspan=1)
+
+        l_puff_var = tk.StringVar()
+        l_puff_var.set(self.settings['l_puff'])
+        menu_l_puff = ttk.OptionMenu(page, l_puff_var, *cmd_list)
+        menu_l_puff.grid(row=3, column=3, columnspan=1)
+
 
         # Save Button
-        btn_save_sp = ttk.Button(master=page, text='Save Settings as Default',
+        btn_save_sp = ttk.Button(master=page, text='Save Settings',
                                 command=lambda: self.save(self.settings_file, self.settings))
-        btn_save_sp.grid(row=3, column=0, columnspan=2)
+        btn_save_sp.grid(row=4, column=1, columnspan=2)
+
+        #Set up sip combination to command
+
 
         # Close Button
         btn_close_sp = ttk.Button(master=page, text='Close Sip & Puff Settings',
                                  command=lambda: self.close_settings('Sip & Puff', page))
-        btn_close_sp.grid(row=4, column=0, columnspan=2, sticky='news')
+        btn_close_sp.grid(row=6, column=0, columnspan=4, sticky='news')
         page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Sip & Puff', page))
 
 
@@ -378,12 +435,12 @@ class GUI:
         txt_box_mode = ttk.Entry(master=page)
         txt_box_mode.grid(row=5, column=1)
 
-        new_trans = tk.IntVar
-        check_trans = ttk.Checkbutton(master=page, text='Transcription', var=new_trans)
-        check_trans.grid(row = 6, column = 0, columnspan = 2, sticky = 'w')
+        new_echo = tk.IntVar
+        check_echo = ttk.Checkbutton(master=page, text='Transcription', var=new_echo)
+        check_echo.grid(row = 6, column = 0, columnspan = 2, sticky = 'w')
 
         btn_create_mode = ttk.Button(master=page, text='Add new mode',
-                                    command=lambda: self.create_mode(txt_box_mode.get(), new_trans, txt_box_mode))
+                                    command=lambda: self.create_mode(txt_box_mode.get(), new_echo, txt_box_mode))
         btn_create_mode.grid(row=7, column=0, columnspan=2)
 
         # Add new command to mode
@@ -434,13 +491,15 @@ class GUI:
 
     def move(self):
         # set up grid
-        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=2)
         self.root.grid_columnconfigure(1, weight=0)
         self.root.grid_columnconfigure(2, weight=0)
         self.root.grid_columnconfigure(3, weight=0)
         self.root.grid_columnconfigure(4, weight=0)
         self.root.grid_columnconfigure(5, weight=0)
+        self.root.grid_columnconfigure(6, weight=0)
         self.root.grid_rowconfigure(0, weight=1)
+
 
         # resize and move window
         self.root.geometry(
@@ -506,7 +565,7 @@ class GUI:
         print(str(mode) + str(key) + str(cmd))
         save_add_cmd(filename, key, cmd)
 
-    def create_mode(self, name, trans,entry):
+    def create_mode(self, name, echo,entry):
         if name>'' and not self.modes.get(name):
             entry.delete(0, 'end')
             new_filename = self.path+'settings/cmd_' + str(name) + '.txt'
@@ -514,7 +573,7 @@ class GUI:
             file = open(new_filename, 'w+', encoding='utf-8')
             file.close()
             # add to dict and file of modes
-            self.modes[name] = Mode(name,bool(trans.get), new_filename, False)
+            self.modes[name] = Mode(name,1, new_filename, bool(trans.get))
         elif self.modes.get(name):
             msg_name =  tk.messagebox.showinfo('Mode already exsist', 'The mode name you have entered already exsists as a mode.'
                                                                      + ' Please enter another mode name')
@@ -527,7 +586,7 @@ class GUI:
         self.root.geometry('%dx%d+0+%d' % (self.width, 0.1 * self.height, (1 - 0.2) * self.height))
 
         # frame
-        # self.panel_frame = Frame(self.root, )
+
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_columnconfigure(1, weight=1)
         self.root.grid_columnconfigure(2, weight=1)
@@ -553,7 +612,6 @@ class GUI:
     def change_mode(self, select):
         self.current_mode = select
         self.transcription = self.modes[select].trans
-        print(self.transcription)
         if not self.transcription:
             self.l_transcription.config(text='Transcription is off')
             self.off_transcript()
@@ -658,7 +716,7 @@ def setting_config(filename):
             for i in range(1, len(l)):
                 tmp_l.append(l[i])
             settings_current[l[0]] = tmp_l
-
+    print (settings_current)
     return settings_current
 
 if __name__ == "__main__":

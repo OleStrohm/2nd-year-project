@@ -9,8 +9,6 @@ sip_pressure_threshold;300
 sip_short_time;0.2
 sip_long_time;0.4
 sip_double_time;0.5
-
-
 leftC_pre;puff
 leftC_len;short
 rightC_pre;puff
