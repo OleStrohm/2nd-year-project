@@ -1,6 +1,6 @@
-dead_zone;55.294117647058826
+dead_zone;9.647058823529411
 Cursor_speed;44.70588235294118
-high_speed;289.1294117647059
+high_speed;313.22352941176473
 puff_pressure_threshold;600
 puff_short_time;44.70588235294118
 puff_long_time;56.470588235294116
@@ -11,10 +11,10 @@ sip_long_time;37.64705882352941
 sip_double_time;85.88235294117646
 s_sip;left
 s_puff;enter
-d_sip;double
+d_sip;right
 d_puff;enter
 l_sip;middle
-l_puff;double click
+l_puff;right
 pre_length;100
 Min_sens;0
 Max_sens;100
