@@ -127,7 +127,6 @@ class ArduinoController:
 						self.above_threshold = True
 						start_time = time()
 						elapsed1 = time() - stop_time
-						if elapsed1 < 0.4:
 							print("double puff")
 							self.handle_callback("double_puff")
 							self.double = True
@@ -142,7 +141,6 @@ class ArduinoController:
 						self.below_threshold = True
 						start_time = time()
 						elapsed1 = time() - start_time
-						if elapsed1 < 0.5:
 							print("double sip")
 							self.handle_callback("double_sip")
 							self.double = True
@@ -176,6 +174,8 @@ class ArduinoController:
 					elif elapsed > self.short_sip_time:
 						self.sip = True
 					self.below_threshold = False
+						if elapsed1 < 0.4:
+						if elapsed1 < 0.5:
 
 	def handle_callback(self, type):
 		self.functions[type]()
