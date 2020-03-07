@@ -108,7 +108,7 @@ class ArduinoController:
                         self.above_threshold = True
                         start_time = time()
                         elapsed1 = time() - stop_time
-                        if elapsed1 < 0.4:
+                        if elapsed1 < self.double_puff_time:
                             print("double puff")
                             self.double = True
                     elif self.double:
@@ -121,7 +121,7 @@ class ArduinoController:
                         self.below_threshold = True
                         start_time = time()
                         elapsed1 = time() - start_time
-                        if elapsed1 < 0.5:
+                        if elapsed1 < self.double_sip_time:
                             print("double sip")
                             self.double = True
                     elif self.double:
@@ -158,7 +158,7 @@ class ArduinoController:
                     elif elapsed > self.short_sip_time:
                         self.sip = True
                         self.below_threshold = False
-
+                        
     def set_bounds(self, w, h):
         self.mutex.acquire()
         try:
