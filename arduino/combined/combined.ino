@@ -1,7 +1,7 @@
-int IUD_pin = A5; // UD pin assignment
-int ILR_pin = A4; // LR pin assignment
-int pressure_sensor_pin = A3; // pressure sensor pin assignment
-int baud_rate = 9600; // serial baud rate *MUST MATCH IN PYTHON*
+int IUD_pin = A4; // UD pin assignment
+int ILR_pin = A3; // LR pin assignment
+int pressure_sensor_pin = A5; // pressure sensor pin assignment
+int baud_rate = 19200; // serial baud rate *MUST MATCH IN PYTHON*
 
 int sensorValue = 0; // pressure sensor data
 int UD = 0; // UD data
@@ -9,7 +9,7 @@ int LR = 0; // LR data
 unsigned long currentMillis; // current time
 unsigned long previousMillis = 0; // previous time
 int samplePeriod = 10;
-int numSamples = 10;
+const int numSamples = 10;
 int samples[numSamples]; // array to store samples
 int samplecounter = 0;
 byte sL, sH, UD0, UD1, LR0, LR1; // bytes for encoding

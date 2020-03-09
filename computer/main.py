@@ -4,6 +4,7 @@ from arduinoControl import ArduinoController
 from threading import Lock
 import keyboard as kb
 from word2cmd import CommandController
+import os
 
 mutex = Lock()
 
@@ -39,6 +40,7 @@ class App:
         self.commands = CommandController()
         # self.commands.load_cmds("format", 'backend/cmds_format.txt')
         arduino = ArduinoController()
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "My-First-Project-958184117e89.json"
         arduino.start()
         speech_to_text = SpeechToTextController(self, stt_callback)
         speech_to_text.start()
