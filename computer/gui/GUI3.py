@@ -69,22 +69,22 @@ class GUI:
 		self.root.grid_rowconfigure(0, weight=1)
 		# Buttons
 		# Menu buttons
-		self.btn_exit = ttk.Button(self.root, text='Exit')
+		self.btn_exit = ttk.Button(self.root, text='Exit', width = 8)
 		self.btn_exit['command'] = lambda: self.close_program()  # note: when we turn this to an app change to root.quit
 		self.btn_exit.grid(row=0, column=0, sticky='nsew')
 
-		self.btn_move = ttk.Button(self.root, text='Minimize')
+		self.btn_move = ttk.Button(self.root, text='Minimize', width = 8)
 		self.btn_move['command'] = lambda: self.move()
 		self.btn_move.grid(row=0, column=5, sticky='nsew')
 
-		self.btn_transcription = ttk.Button(self.root, text='something')
+		self.btn_transcription = ttk.Button(self.root, text='something', width = 8)
 		self.btn_transcription.grid(row=0, column=2, sticky='news')
 
-		self.btn_hide = ttk.Button(self.root, text='Hide')
+		self.btn_hide = ttk.Button(self.root, text='Hide', width = 8)
 		self.btn_hide['command'] = lambda: self.hide()
 		self.btn_hide.grid(row=0, column=6, sticky='nsew')
 
-		self.btn_settings = ttk.Button(self.root, text='Settings')
+		self.btn_settings = ttk.Button(self.root, text='Settings', width = 8)
 		self.btn_settings['command'] = lambda: self.settings_start()
 		self.btn_settings.grid(row=0, column=7, sticky='nsew')
 		# Transcription setup as a label
@@ -94,15 +94,17 @@ class GUI:
 		self.l_transcription.grid(row=0, column=3, sticky='nsew')
 
 		# puff transcription
-		self.l_sips = ttk.Label (self.root, text='Short sip', foreground = 'purple', anchor = 'center')
+		self.l_sips = ttk.Label (self.root, text='Sip & Puff', foreground = 'purple', anchor = 'center', width = 12 )
 		self.l_sips.grid(row = 0, column = 4, sticky = 'nesw')
 
 		# mode menu
+		max_len = len(max(list(self.modes.keys()), key = len))
 		self.m_current_mode = tk.StringVar()
 		self.m_current_mode.set(self.current_mode)
 		self.m_mode = ttk.OptionMenu(self.root, self.m_current_mode, self.current_mode, *list(self.modes.keys()),
 									 command=self.change_mode)
 		self.m_mode.grid(row=0, column=1, sticky='nsew')
+		self.m_mode.config(width = max_len)
 
 		if self.transcription:
 			self.on_transcript()
@@ -190,9 +192,9 @@ class GUI:
 		l_speed.grid(row=6, column=0, columnspan=2, sticky='news')
 		l_smin = ttk.Label(master=joy_page, text='Min size 0').grid(row=7, column=0, sticky='nes')
 		l_smax = ttk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
-		dead_zone = TickScale(master=joy_page, from_=0, to=20, orient='horizontal', digits = 0, command=lambda e: self.settings_update(e, 'dead_zone', self.arduino.set_mouse_dead_zone))
-		dead_zone = TickScale(master=joy_page, from_=0, to=20, orient='horizontal', digits=0)
+		dead_zone = ttk.Scale(master=joy_page, from_=0.1, to=10, orient='horizontal')
 		dead_zone.set(self.settings['dead_zone'])  # update with settings value
+		dead_zone.bind("<ButtonRelease>", lambda e: self.settings_update(e, 'dead_zone', self.arduino.set_mouse_dead_zone))
 		dead_zone.grid(row=7, column=1, columnspan=1, sticky='news')
 
 
