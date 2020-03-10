@@ -29,8 +29,8 @@ class ArduinoController:
             "double": self.handle_double_click,
             "drag": self.handle_drag,
             "enter": self.handle_enter,
-            "nothing": self.handle_nothing,
-            "new option": self.handle_nothing
+            "prev mode": self.handle_change_mode,
+            "nothing": self.handle_nothing
         }
 
         self.callbacks = {
@@ -69,6 +69,7 @@ class ArduinoController:
         self.mouse_movement_duration = 0.06
 
         self.gui_callback = None
+        self.gui_change_mode = None
 
         self.running = False
 
@@ -188,6 +189,12 @@ class ArduinoController:
     def stop(self):
         self.mouse_controller.stop()
         self.running = False
+
+    def handle_change_mode(self):
+        self.gui_change_mode()
+
+    def set_gui_change_mode(self, callback):
+        self.gui_change_mode = callback
 
     def set_callback(self, command, function):
         self.callbacks[command] = function
