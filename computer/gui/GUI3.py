@@ -61,6 +61,7 @@ class GUI:
 		self.root.grid_columnconfigure(4, weight=1)
 		self.root.grid_columnconfigure(5, weight=1)
 		self.root.grid_columnconfigure(6, weight=1)
+		self.root.grid_columnconfigure(7, weight=1)
 		self.root.grid_rowconfigure(0, weight=1)
 		# Buttons
 		# Menu buttons
@@ -70,23 +71,27 @@ class GUI:
 
 		self.btn_move = ttk.Button(self.root, text='Minimize')
 		self.btn_move['command'] = lambda: self.move()
-		self.btn_move.grid(row=0, column=4, sticky='nsew')
+		self.btn_move.grid(row=0, column=5, sticky='nsew')
 
 		self.btn_transcription = ttk.Button(self.root, text='something')
 		self.btn_transcription.grid(row=0, column=2, sticky='news')
 
 		self.btn_hide = ttk.Button(self.root, text='Hide')
 		self.btn_hide['command'] = lambda: self.hide()
-		self.btn_hide.grid(row=0, column=5, sticky='nsew')
+		self.btn_hide.grid(row=0, column=6, sticky='nsew')
 
 		self.btn_settings = ttk.Button(self.root, text='Settings')
 		self.btn_settings['command'] = lambda: self.settings_start()
-		self.btn_settings.grid(row=0, column=6, sticky='nsew')
+		self.btn_settings.grid(row=0, column=7, sticky='nsew')
 		# Transcription setup as a label
 		self.l_transcription = ttk.Label(self.root, text='Transcript runs here', anchor='nw', background='black',
 										 foreground='white',
 										 width=80, wraplength=0.6 * self.width)
 		self.l_transcription.grid(row=0, column=3, sticky='nsew')
+
+		# puff transcription
+		self.l_sips = ttk.Label (self.root, text='Short sip', foreground = 'purple', anchor = 'center')
+		self.l_sips.grid(row = 0, column = 4, sticky = 'nesw')
 
 		# mode menu
 		self.m_current_mode = tk.StringVar()
@@ -554,6 +559,7 @@ class GUI:
 		self.root.grid_columnconfigure(4, weight=0)
 		self.root.grid_columnconfigure(5, weight=0)
 		self.root.grid_columnconfigure(6, weight=0)
+		self.root.grid_columnconfigure(7, weight=0)
 		self.root.grid_rowconfigure(0, weight=1)
 
 		# resize and move window
@@ -570,6 +576,7 @@ class GUI:
 		# hide the trascription
 		self.l_transcription.grid_forget()
 		self.btn_transcription.grid_forget()
+		self.l_sips.grid_forget()
 
 	def add_cmd(self, mode, keys, cmd, entry_1, entry_2):
 		keys = keys.split()
@@ -646,7 +653,6 @@ class GUI:
 		self.root.geometry('%dx%d+0+%d' % (self.width, 0.1 * self.height, (1 - 0.2) * self.height))
 
 		# frame
-
 		self.root.grid_columnconfigure(0, weight=1)
 		self.root.grid_columnconfigure(1, weight=1)
 		self.root.grid_columnconfigure(2, weight=1)
@@ -654,16 +660,18 @@ class GUI:
 		self.root.grid_columnconfigure(4, weight=1)
 		self.root.grid_columnconfigure(5, weight=1)
 		self.root.grid_columnconfigure(6, weight=1)
+		self.root.grid_columnconfigure(7, weight=1)
 		self.root.grid_rowconfigure(0, weight=1)
 		# reroganize the buttons
 		self.btn_exit.grid(row=0, column=0, sticky='nsew')
 		self.btn_transcription.grid(row=0, column=2, sticky='nsew')
 		self.m_mode.grid(row=0, column=1, sticky='nsew')
-		self.btn_move.grid(row=0, column=4, sticky='nsew')
+		self.btn_move.grid(row=0, column=5, sticky='nsew')
 		self.btn_move.config(text='Minimize', command=lambda: self.move())
-		self.btn_hide.grid(row=0, column=5, sticky='nsew')
-		self.btn_settings.grid(row=0, column=6, sticky='nsew')
+		self.btn_hide.grid(row=0, column=6, sticky='nsew')
+		self.btn_settings.grid(row=0, column=7, sticky='nsew')
 		self.l_transcription.grid(row=0, column=3, sticky='nsew')
+		self.l_sips.grid(row = 0, column = 4, sticky = 'news')
 
 	def hide(self):
 		# hide window so that just the icon on the taskbar is left
@@ -685,6 +693,9 @@ class GUI:
 			self.l_transcription.config(text=line)
 		else:
 			self.l_transcription.config(text='Transcription is off')
+
+	def sip_transcription (self, trans):
+		self.l_sips.config(text = trans)
 
 	def off_transcript(self):
 		self.l_transcription.config(text='Transcription is off')
@@ -788,3 +799,4 @@ if __name__ == "__main__":
 	# arduino = None
 	commands = CommandController()
 	app = GUI("", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, commands, stt)
+	app.start()

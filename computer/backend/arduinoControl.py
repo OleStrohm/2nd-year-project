@@ -8,6 +8,7 @@ from time import time, time_ns
 
 
 
+
 class ArduinoController:
     def __init__(self):
         # serial set up¬
