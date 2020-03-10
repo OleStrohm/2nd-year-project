@@ -37,6 +37,7 @@ class GUI:
 		self.current_mode = self.settings['start_mode']
 		print(self.current_mode)
 
+
 		# set up root window
 		# self.root = tk.Tk()
 		self.root = ThemedTk(theme="arc", themebg=True)
@@ -46,7 +47,7 @@ class GUI:
 		self.root.title('App Name Menu')
 		self.width = self.root.winfo_screenwidth()
 		self.height = self.root.winfo_screenheight()
-		# self.arduino.set_bounds(self.width, self.height)
+		self.arduino.set_bounds(self.width, self.height)
 		self.root.geometry('%dx%d+%d+%d' % (
 			self.width, 0.1 * self.height, 0,
 			self.height - 0.2 * self.height))  # note: 0,0 cooordiantes is top left corner
@@ -782,7 +783,7 @@ def setting_config(filename):
 
 
 if __name__ == "__main__":
-	stt = None#SpeechToTextController(None, lambda t, f: print(t))
+	stt = None #SpeechToTextController(None, lambda t, f: print(t))
 	arduino = ArduinoController()
 	# arduino = None
 	commands = CommandController()
