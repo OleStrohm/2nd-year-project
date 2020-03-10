@@ -18,6 +18,7 @@ class GUI:
 		self.commands = commands
 		self.arduino = arduino
 		self.arduino.set_gui_callback(self.sip_transcription)
+		self.arduino.set_gui_change_mode(lambda: self.change_mode(self.previous_mode))
 		self.speech_to_text = speech_to_text
 		self.path = path
 		self.modes_file = path + modes_file
@@ -39,6 +40,7 @@ class GUI:
 		self.transcription = self.modes[self.settings['start_mode']].trans
 		print(self.settings['start_mode'])
 		self.current_mode = self.settings['start_mode']
+		self.previous_mode = self.settings['start_mode']
 		print(self.current_mode)
 
 
@@ -238,7 +240,6 @@ class GUI:
 		btn_advanced.grid(row=5, column=1, columnspan=2)
 
 		# Set commands to sip and puffs
-		# cmd_list = self.settings['sip_cmds']
 		cmd_list = self.arduino.functions.keys()
 		print(cmd_list)
 		l_sip_set = ttk.Label(master=page, text='Set up the sip and puff commands to desired action')
@@ -688,6 +689,7 @@ class GUI:
 		self.root.iconify()
 
 	def change_mode(self, select):
+		self.previous_mode = self.current_mode
 		self.current_mode = select
 		self.transcription = self.modes[select].trans
 		if not self.transcription:
