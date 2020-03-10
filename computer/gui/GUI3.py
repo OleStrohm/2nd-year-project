@@ -18,7 +18,7 @@ class GUI:
 		self.commands = commands
 		self.arduino = arduino
 		self.arduino.set_gui_callback(self.sip_transcription)
-		self.arduino.set_gui_change_mode(lambda: self.change_mode(self.previous_mode))
+		self.arduino.set_gui_change_mode(lambda: self.sip_change_mode(self.previous_mode))
 		self.speech_to_text = speech_to_text
 		self.path = path
 		self.modes_file = path + modes_file
@@ -699,6 +699,10 @@ class GUI:
 			self.on_transcript()
 
 		print('Update mode to %s' % select)
+
+	def sip_change_mode(self, mode):
+		self.change_mode(mode)
+		self.m_current_mode.set(mode)
 
 	def update_transcript(self, line):
 		if self.transcription:

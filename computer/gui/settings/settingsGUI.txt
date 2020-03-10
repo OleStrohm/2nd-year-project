@@ -9,7 +9,7 @@ sip_pressure_threshold;300
 sip_short_time;0.2
 sip_long_time;0.4
 sip_double_time;0.5
-s_sip;right
+s_sip;prev mode
 s_puff;left
 d_sip;nothing
 d_puff;double
