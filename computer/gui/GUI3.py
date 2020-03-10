@@ -196,7 +196,7 @@ class GUI:
 		l_smax = ttk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
 		dead_zone = ttk.Scale(master=joy_page, from_=0.1, to=10, orient='horizontal')
 		dead_zone.set(self.settings['dead_zone'])  # update with settings value
-		dead_zone.bind("<ButtonRelease>", lambda e: self.settings_update(e, 'dead_zone', self.arduino.set_mouse_dead_zone))
+		dead_zone.bind("<ButtonRelease>", lambda e: self.settings_update(dead_zone.get(), 'dead_zone', self.arduino.set_mouse_dead_zone))
 		dead_zone.grid(row=7, column=1, columnspan=1, sticky='news')
 
 
