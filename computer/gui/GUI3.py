@@ -17,6 +17,7 @@ class GUI:
 	def __init__(self, path, modes_file, settings_file, arduino, commands, speech_to_text):
 		self.commands = commands
 		self.arduino = arduino
+		self.arduino.set_gui_callback(self.sip_transcription)
 		self.speech_to_text = speech_to_text
 		self.path = path
 		self.modes_file = path + modes_file

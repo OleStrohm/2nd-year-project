@@ -8,7 +8,6 @@ from time import time, time_ns
 
 
 
-
 class ArduinoController:
     def __init__(self):
         # serial set up¬
@@ -68,6 +67,8 @@ class ArduinoController:
         self.mouse_lower_scaling = 1
         self.mouse_higher_scaling = 2
         self.mouse_movement_duration = 0.06
+
+        self.gui_callback = None
 
         self.running = False
 
@@ -192,7 +193,7 @@ class ArduinoController:
         self.callbacks[command] = function
 
     def handle_callback(self, command):
-        print(self.callbacks)
+        self.gui_callback(command.replace('_', ' '))
         self.functions[self.callbacks[command]]()
 
     def handle_nothing(self):
@@ -262,6 +263,8 @@ class ArduinoController:
         self.mouse_lower_scaling = int(mouse_speed)
         self.mouse_higher_scaling = int(mouse_speed)/2
 
+    def set_gui_callback(self, callback):
+        self.gui_callback = callback
 
 
 class MouseController:
