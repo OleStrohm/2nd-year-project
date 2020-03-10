@@ -26,8 +26,11 @@ class GUI:
 		self.modes = mode_dict_set_up(self.modes_file)
 		self.settings = setting_config(self.settings_file)
 
+
 		for key in self.modes:
 			self.commands.load_cmds(key, path + self.modes[key].file_name)
+
+		self.update_sip_cmds(self.settings['s_sip'], self.settings['s_puff'], self.settings['l_sip'], self.settings['l_puff'], self.settings['d_sip'], self.settings['d_puff'], True)
 
 		self.root = None
 		self.width = None
@@ -106,6 +109,7 @@ class GUI:
 		else:
 			self.off_transcript()
 		self.root.protocol('WM_DELETE_WINDOW', self.close_program)
+
 
 	def start(self):
 		self.root.mainloop()
@@ -187,8 +191,10 @@ class GUI:
 		l_smin = ttk.Label(master=joy_page, text='Min size 0').grid(row=7, column=0, sticky='nes')
 		l_smax = ttk.Label(master=joy_page, text='100 Max size').grid(row=7, column=2, sticky='nws')
 		dead_zone = TickScale(master=joy_page, from_=0, to=20, orient='horizontal', digits = 0, command=lambda e: self.settings_update(e, 'dead_zone', self.arduino.set_mouse_dead_zone))
+		dead_zone = TickScale(master=joy_page, from_=0, to=20, orient='horizontal', digits=0)
 		dead_zone.set(self.settings['dead_zone'])  # update with settings value
 		dead_zone.grid(row=7, column=1, columnspan=1, sticky='news')
+
 
 		# set the speed of the cursor
 		l_speed = ttk.Label(master=joy_page, text='Cursor speed')
@@ -533,7 +539,7 @@ class GUI:
 		self.settings[name] = value
 		self.changes = True
 
-	def update_sip_cmds(self, s_sip, s_puff, l_sip, l_puff, d_sip, d_puff):
+	def update_sip_cmds(self, s_sip, s_puff, l_sip, l_puff, d_sip, d_puff, override=False):
 		cmd_list = [s_sip, s_puff, l_sip, l_puff, d_sip, d_puff]
 		if 'left' not in cmd_list:
 			msg_left = tk.messagebox.showerror('No left click',
@@ -545,12 +551,13 @@ class GUI:
 			self.settings_update(l_puff, 'l_puff', lambda v: self.arduino.set_callback("long_puff", v))
 			self.settings_update(d_sip, 'd_sip', lambda v: self.arduino.set_callback("double_sip", v))
 			self.settings_update(d_puff, 'd_puff', lambda v: self.arduino.set_callback("double_puff", v))
-			default_msg = tk.messagebox.askyesno(title='Update Sip & Puff settings ',
-												 message='You have upadated your sip & puff settings. Do you wish to make the settings changes to your default settings?')
-			if default_msg:
-				self.save(self.settings_file, self.settings)
-			else:
-				self.changes = False
+			if not override:
+				default_msg = tk.messagebox.askyesno(title='Update Sip & Puff settings ',
+													 message='You have upadated your sip & puff settings. Do you wish to make the settings changes to your default settings?')
+				if default_msg:
+					self.save(self.settings_file, self.settings)
+				else:
+					self.changes = False
 	def move(self):
 		# set up grid
 		self.root.grid_columnconfigure(0, weight=2)
@@ -709,7 +716,6 @@ class GUI:
 		self.btn_transcription.config(text='OFF', command=self.off_transcript)
 
 	def update_trans(self, mode_list, index):
-		print('does this work')
 		self.changes = True
 		for i in range(len(index)):
 			self.modes[mode_list[i]].trans = index[i].get()
