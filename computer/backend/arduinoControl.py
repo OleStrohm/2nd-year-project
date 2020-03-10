@@ -197,11 +197,15 @@ class ArduinoController:
         self.gui_change_mode = callback
 
     def set_callback(self, command, function):
+        self.mutex.acquire()
         self.callbacks[command] = function
+        self.mutex.release()
 
     def handle_callback(self, command):
-        self.gui_callback(command.replace('_', ' '))
         self.functions[self.callbacks[command]]()
+        command = command.replace('_', ' ')
+        command = command.title()
+        self.gui_callback(command)
 
     def handle_nothing(self):
         pass
@@ -261,7 +265,8 @@ class ArduinoController:
         self.long_sip_time = int(long_sip_time)
 
     def set_mouse_dead_zone(self, mouse_dead_zone):
-        self.mouse_dead_zone = float(mouse_dead_zone)
+        self.mouse_dead_zone = int(mouse_dead_zone)
+        print(self.mouse_dead_zone)
 
     def set_mouse_scaling_threshold(self, mouse_scaling_threshold):
         self.mouse_scaling_threshold = int(mouse_scaling_threshold)

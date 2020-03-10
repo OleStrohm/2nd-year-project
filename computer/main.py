@@ -8,6 +8,7 @@ import os
 
 mutex = Lock()
 
+
 def stt_callback(app, text, final):
     if final:
         print("final: " + text)
@@ -41,14 +42,15 @@ class App:
         # self.commands.load_cmds("format", 'backend/cmds_format.txt')
         arduino = ArduinoController()
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "My-First-Project-958184117e89.json"
-        arduino.start()
         speech_to_text = SpeechToTextController(self, stt_callback)
-        speech_to_text.start()
 
-        self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands, speech_to_text)
+        self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands,
+                       speech_to_text)
         print("Initialized")
+        arduino.start()
+        speech_to_text.start()
         self.gui.start()
 
 
 if __name__ == "__main__":
-    app = App()
+    App()

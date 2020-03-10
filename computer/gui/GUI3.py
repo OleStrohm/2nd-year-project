@@ -1,5 +1,7 @@
 import tkinter as tk
 import tkinter.messagebox
+from time import sleep
+
 from ttkthemes import ThemedTk
 from tkinter import ttk
 from ttkwidgets import TickScale
@@ -26,6 +28,8 @@ class GUI:
 
 		self.modes = mode_dict_set_up(self.modes_file)
 		self.settings = setting_config(self.settings_file)
+
+		self.sip_transcription_thread_id = 0
 
 
 		for key in self.modes:
@@ -711,7 +715,14 @@ class GUI:
 			self.l_transcription.config(text='Transcription is off')
 
 	def sip_transcription (self, trans):
-		self.l_sips.config(text = trans)
+		self.l_sips.config(text=trans)
+		self.sip_transcription_thread_id = self.sip_transcription_thread_id + 1
+		Thread(target=self.sip_transcription_timeout, args=(self.sip_transcription_thread_id,)).start()
+
+	def sip_transcription_timeout(self,  id):
+		sleep(2)
+		if self.sip_transcription_thread_id == id:
+			self.l_sips.config(text="-")
 
 	def off_transcript(self):
 		self.l_transcription.config(text='Transcription is off')

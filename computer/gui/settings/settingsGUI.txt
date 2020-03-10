@@ -9,9 +9,9 @@ sip_pressure_threshold;300
 sip_short_time;0.2
 sip_long_time;0.4
 sip_double_time;0.5
-s_sip;prev mode
+s_sip;right
 s_puff;left
-d_sip;nothing
+d_sip;prev mode
 d_puff;double
 l_sip;middle
 l_puff;drag
@@ -22,4 +22,4 @@ length_long;100
 length_short;10
 pressure_type;sip;puff
 length;long;short
-start_mode;Type
+start_mode;Format
