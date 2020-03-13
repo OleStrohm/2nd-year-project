@@ -648,7 +648,7 @@ class GUI:
 	def create_mode(self, name, echo, entry):
 		if name > '' and not self.modes.get(name):
 			entry.delete(0, 'end')
-			new_filename = self.path + 'settings/cmd_' + str(name) + '.txt'
+			new_filename = 'settings/cmd_' + str(name) + '.txt'
 			# create a new text file to store all cmds in
 			file = open(new_filename, 'w+', encoding='utf-8')
 			file.close()

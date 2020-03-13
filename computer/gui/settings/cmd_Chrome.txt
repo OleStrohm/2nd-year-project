@@ -1,0 +1,12 @@
+left ctrl+shift+tab
+right ctrl+tab
+close multi
+closetab ctrl+w
+new multi
+newtab ctrl+t
+new multi
+newwindow ctrl+n
+history ctrl+h
+search ctrl+l
+reopen multi
+reopentab ctrl+shift+t
