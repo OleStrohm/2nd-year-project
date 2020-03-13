@@ -2,3 +2,6 @@ paste ctrl+v
 enter enter
 backspace backspace
 test 
+semicolon ;
+double multi
+doublesemicolon ';;'

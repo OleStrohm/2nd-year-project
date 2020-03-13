@@ -23,6 +23,9 @@ def stt_callback(app, text, final):
             kb.write(processed)
         while hotkey != "empty":
             print("hotkey: " + hotkey)
+            # if hotkey[0] == '\'':
+            #     kb.write(hotkey[1:-1])
+            # else:
             kb.send(hotkey)
             processed, hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, unprocessed)
             if app.gui.modes[app.gui.current_mode].echo:
