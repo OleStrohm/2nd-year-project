@@ -25,7 +25,7 @@ class CommandController:
         #     return "empty", trans
 
         if trans == "":
-            return "empty", ""
+            return "", "empty", ""
 
         line = trans.split()
         cmd_dict = self.modes[name]
