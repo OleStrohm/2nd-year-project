@@ -7,3 +7,9 @@ test
 semicolon ;
 double multi
 doublesemicolon ';;'
+tab ctrl+t
+select multi
+selectall ctrl+a
+clear multi
+cleareord shift+ctrl+left,backspace
+

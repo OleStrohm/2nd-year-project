@@ -699,6 +699,9 @@ class GUI:
 			print('echo: ' + str(mode_list[i]) + ';' + str(index_e[i].get()))
 
 		save_mode_settings(self.modes_file, self.modes)
+		select = self.current_mode
+		self.current_mode = self.previous_mode
+		self.change_mode(select)
 		self.changes = False
 
 
@@ -863,6 +866,7 @@ class GUI:
 		else:
 			self.btn_echo.config(text='Echo:\nON')
 			self.echo = True
+		print('Echo: ' + str(self.echo))
 
 	def update_trans(self):
 		self.changes = True
