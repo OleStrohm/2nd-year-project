@@ -1,3 +1,9 @@
 paste ctrl+v
 enter enter
 backspace backspace
+delete multi
+deleteline home,home,shift+end,backspace
+test 
+semicolon ;
+double multi
+doublesemicolon ';;'
