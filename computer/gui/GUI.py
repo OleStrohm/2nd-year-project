@@ -502,23 +502,40 @@ class GUI:
 								   command=lambda: self.save(self.settings_file, self.settings))
 		btn_set_start.grid(row=2, column=0, columnspan=2)
 
-		# Selection to trun on/off
-		l_trans_onoff = ttk.Label(master=frame, text='Set transcription on/off')
-		l_trans_onoff.grid(row=3, column=1, columnspan=2)
+		# Selection to trun transcription on/off
+		l_trans_onoff = ttk.Label(master=frame, text='transcription on/off')
+		l_trans_onoff.grid(row=3, column=0, columnspan=1)
 
-		# make check box selection
-		check_boxes = ttk.Frame(frame)
-		check_boxes.grid(row=4, column=0, columnspan=2, sticky='news')
 		modes_list = list(self.modes.keys())
-		index = list(range(len(modes_list)))
-		for i in range(0, len(self.modes.keys())):
-			index[i] = tk.IntVar()
-			print(self.modes[modes_list[i]].trans)
-			index[i].set(self.modes[modes_list[i]].trans)
-			ttk.Checkbutton(master=check_boxes, text=modes_list[i], var=index[i],
-							command=lambda: self.update_trans(modes_list, index)).grid(row=i, column=0)
 
-		btn_update_trans_set = ttk.Button(master=frame, text='Update transcription default', command=self.save_trans)
+		# make check box selection trans
+		check_boxes = ttk.Frame(frame)
+		check_boxes.grid(row=4, column=0, columnspan=1, sticky='news')
+		index_t = list(range(len(modes_list)))
+		for i in range(0, len(self.modes.keys())):
+			index_t[i] = tk.IntVar()
+			print(self.modes[modes_list[i]].trans)
+			index_t[i].set(self.modes[modes_list[i]].trans)
+			ttk.Checkbutton(master=check_boxes, text=modes_list[i], var=index_t[i],
+							command= self.update_trans).grid(row=i, column=0, sticky = 'w')
+
+		# Selection to trun echo on/off
+		l_trans_onoff = ttk.Label(master=frame, text='Echo on/off')
+		l_trans_onoff.grid(row=3, column=1, columnspan=1)
+
+		# make check box selection echo
+		check_boxes = ttk.Frame(frame)
+		check_boxes.grid(row=4, column=1, columnspan=1, sticky='news')
+		modes_list = list(self.modes.keys())
+		index_e = list(range(len(modes_list)))
+		for i in range(0, len(self.modes.keys())):
+			index_e[i] = tk.IntVar()
+			print(self.modes[modes_list[i]].echo)
+			index_e[i].set(self.modes[modes_list[i]].echo)
+			ttk.Checkbutton(master=check_boxes, text=modes_list[i], var=index_e[i],
+							command= self.update_trans).grid(row=i, column=0, sticky='w')
+
+		btn_update_trans_set = ttk.Button(master=frame, text='Update transcription details to default', command=lambda: self.save_trans(modes_list, index_e, index_t))
 		btn_update_trans_set.grid(row=5, column=0, columnspan=2)
 
 		# Advanced mode settings
@@ -526,10 +543,10 @@ class GUI:
 		btn_mode_adv.grid(row=6, column=0, columnspan=2)
 		# Close Button
 		btn_close_stt = ttk.Button(master=frame, text='Close Speech to Text Settings',
-								   command=lambda: self.save_sip(page))
+								   command=lambda: self.save_sip(page, modes_list, index_e, index_t))
 		btn_close_stt.grid(row=7, column=0, columnspan=2, sticky='news')
 
-		page.protocol('WM_DELETE_WINDOW', lambda: self.save_sip(page))
+		page.protocol('WM_DELETE_WINDOW', lambda: self.save_sip(page, modes_list, index_e, index_t))
 
 	def additional_mode(self):
 		page = tk.Toplevel()
@@ -664,19 +681,27 @@ class GUI:
 				self.save(self.settings_file, self.settings)
 		window.destroy()
 
-	def save_sip(self, window):
+	def save_sip(self, window, mode_list, index_e, index_t):
 		if self.changes:
 			msg = tk.messagebox.askyesno(title='Unsaved Changes',
 										 message='There are unsaved settings changes. Do you wish to save these to default settings?')
 			if msg:
 				self.changes = False
 				save_changed_settings(self.settings_file, self.settings)
-				save_mode_settings(self.modes_file, self.modes)
+				self.save_trans(mode_list, index_e, index_t)
 		window.destroy()
 
-	def save_trans(self):
+	def save_trans(self, mode_list, index_e, index_t):
+		for i in range(len(index_t)):
+			self.modes[mode_list[i]].trans = index_t[i].get()
+			print('trans: '+str(mode_list[i]) + ';' + str(index_t[i].get()))
+			self.modes[mode_list[i]].echo = index_e[i].get()
+			print('echo: ' + str(mode_list[i]) + ';' + str(index_e[i].get()))
+
 		save_mode_settings(self.modes_file, self.modes)
 		self.changes = False
+
+
 
 	def settings_gui(self):
 		gui_page = tk.messagebox.showinfo(title='Window options', message='Window options are still under development')
@@ -758,7 +783,7 @@ class GUI:
 		print(str(mode) + str(key) + str(cmd))
 		save_add_cmd(filename, key, cmd)
 
-	def create_mode(self, name, echo, trans ,entry):
+	def create_mode(self, name, echo, trans,entry):
 		if name > '' and not self.modes.get(name):
 			entry.delete(0, 'end')
 			new_filename = self.path + 'settings/cmd_' + str(name) + '.txt'
@@ -839,11 +864,9 @@ class GUI:
 			self.btn_echo.config(text='Echo:\nON')
 			self.echo = True
 
-	def update_trans(self, mode_list, index):
+	def update_trans(self):
 		self.changes = True
-		for i in range(len(index)):
-			self.modes[mode_list[i]].trans = index[i].get()
-			print(str(mode_list[i]) + ';' + str(index[i].get()))
+
 
 	def factory_settings(self):
 		factory_msg = tk.messagebox.askyesno(title='Reset to factory settings',
