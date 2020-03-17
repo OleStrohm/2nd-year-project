@@ -1,4 +1,4 @@
-from GUI3 import GUI, mode_dict_set_up, setting_config
+from GUI import GUI, mode_dict_set_up, setting_config
 from speech_to_text import SpeechToTextController
 from arduinoControl import ArduinoController
 from threading import Lock
@@ -19,7 +19,7 @@ def stt_callback(app, text, final):
         #     kb.write(text)
         # else:
         processed, hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, app.unprocessed + " " + text)
-        if app.gui.modes[app.gui.current_mode].echo:
+        if app.gui.echo:
             kb.write(processed)
         while hotkey != "empty":
             print("hotkey: " + hotkey)
@@ -28,7 +28,7 @@ def stt_callback(app, text, final):
             else:
                 kb.send(hotkey)
             processed, hotkey, unprocessed = app.commands.find_cmd(app.gui.current_mode, unprocessed)
-            if app.gui.modes[app.gui.current_mode].echo:
+            if app.gui.echo:
                 kb.write(processed)
 
         app.unprocessed = unprocessed

@@ -50,6 +50,7 @@ class ArduinoController:
         self.short_sip_time = 0.2
         self.long_sip_time = 0.4
         self.double_sip_time = 0.5
+        self.start_snp_data = 0
 
         # variables
         self.above_threshold = False
@@ -116,6 +117,7 @@ class ArduinoController:
                 if self.mouse_calibrate:  # mouse midpoint calibration
                     UD_mid = UD
                     LR_mid = LR
+                    self.start_snp_data = snp_data
                     self.mouse_calibrate = False
                 LR = LR_mid - LR
                 UD = UD - UD_mid
@@ -130,6 +132,7 @@ class ArduinoController:
                     self.mouse_controller.set_direction(0, 0)
 
                 # snp
+
                 if self.puff:
                     if snp_data > self.puff_threshold and not self.above_threshold:
                         self.above_threshold = True
@@ -247,22 +250,22 @@ class ArduinoController:
             self.mutex.release()
 
     def set_puff_threshold(self, puff_threshold):
-        self.puff_threshold = int(puff_threshold)
+        self.puff_threshold = self.start_snp_data + puff_threshold
 
     def set_sip_threshold(self, sip_threshold):
-        self.sip_threshold = int(sip_threshold)
+        self.sip_threshold = self.start_snp_data - sip_threshold
 
     def set_short_puff_time(self, short_puff_time):
-        self.short_puff_time = int(short_puff_time)
+        self.short_puff_time = short_puff_time
 
     def set_long_puff_time(self, long_puff_time):
-        self.long_puff_time = int(long_puff_time)
+        self.long_puff_time = long_puff_time
 
     def set_short_sip_time(self, short_sip_time):
-        self.short_sip_time = int(short_sip_time)
+        self.short_sip_time = short_sip_time
 
     def set_long_sip_time(self, long_sip_time):
-        self.long_sip_time = int(long_sip_time)
+        self.long_sip_time = long_sip_time
 
     def set_mouse_dead_zone(self, mouse_dead_zone):
         self.mouse_dead_zone = int(mouse_dead_zone)
@@ -272,8 +275,8 @@ class ArduinoController:
         self.mouse_scaling_threshold = int(mouse_scaling_threshold)
 
     def set_mouse_speed(self, mouse_speed):
-        self.mouse_lower_scaling = int(mouse_speed)
-        self.mouse_higher_scaling = int(mouse_speed)/2
+        self.mouse_lower_scaling = mouse_speed
+        self.mouse_higher_scaling = mouse_speed/2
 
     def set_gui_callback(self, callback):
         self.gui_callback = callback

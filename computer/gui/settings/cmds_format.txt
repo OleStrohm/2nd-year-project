@@ -19,5 +19,5 @@ alignright ctrl+r
 new multi
 newline enter
 backspace backspace
-clear multi
-clearword shift+ctrl+left,backspace
+delete multi
+deleteword shift+ctrl+left,backspace

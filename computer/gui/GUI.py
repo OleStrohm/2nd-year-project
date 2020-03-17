@@ -218,9 +218,9 @@ class GUI:
 		# set size of dead zone
 		l_speed = ttk.Label(master=frame, text='Dead zone size')
 		l_speed.grid(row=6, column=0, columnspan=2, sticky='news')
-		l_smin = ttk.Label(master=frame, text='Min size 0').grid(row=7, column=0, sticky='nes')
-		l_smax = ttk.Label(master=frame, text='100 Max size').grid(row=7, column=2, sticky='nws')
-		dead_zone = ttk.Scale(master=frame, from_=0.1, to=10, orient='horizontal')
+		l_smin = ttk.Label(master=frame, text='1').grid(row=7, column=0, sticky='nes')
+		l_smax = ttk.Label(master=frame, text='20').grid(row=7, column=2, sticky='nws')
+		dead_zone = ttk.Scale(master=frame, from_=1, to=20, orient='horizontal')
 		dead_zone.set(self.settings['dead_zone'])  # update with settings value
 		dead_zone.bind("<ButtonRelease>",
 					   lambda e: self.settings_update(dead_zone.get(), 'dead_zone', self.arduino.set_mouse_dead_zone))
@@ -229,19 +229,19 @@ class GUI:
 		# set the speed of the cursor
 		l_speed = ttk.Label(master=frame, text='Cursor speed')
 		l_speed.grid(row=0, column=0, columnspan=2, sticky='news')
-		l_smin = ttk.Label(master=frame, text='Min 0').grid(row=1, column=0, sticky='nes')
-		l_smax = ttk.Label(master=frame, text='100 Max').grid(row=1, column=2, sticky='nws')
+		l_smin = ttk.Label(master=frame, text='0.1').grid(row=1, column=0, sticky='nes')
+		l_smax = ttk.Label(master=frame, text='10').grid(row=1, column=2, sticky='nws')
 		slider_speed = ttk.Scale(master=frame, from_=0.1, to=10, orient='horizontal')
 		slider_speed.set(self.settings['Cursor_speed'])  # update with settings value
 		slider_speed.grid(row=1, column=1, columnspan=1, sticky='news')
 		slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'Cursor_speed',
 																				self.arduino.set_mouse_speed))
 
-		# Set Up High Spped Theshold
+		# Set Up High Speed Threshold
 		l_high_speed = ttk.Label(master=frame, text='High Speed Threshold')
 		l_high_speed.grid(row=4, column=0, columnspan=3, sticky='ews')
-		l_min = ttk.Label(master=frame, text='Min 0').grid(row=5, column=0, sticky='nes')
-		l_mix = ttk.Label(master=frame, text='512 Max ').grid(row=5, column=2, sticky='nws')
+		l_min = ttk.Label(master=frame, text='0').grid(row=5, column=0, sticky='nes')
+		l_mix = ttk.Label(master=frame, text='512').grid(row=5, column=2, sticky='nws')
 		slider_high_speed = ttk.Scale(master=frame, from_=0, to=512, orient='horizontal', )
 		slider_high_speed.set(self.settings['high_speed'])  # update with settings value
 		slider_high_speed.grid(row=5, column=1, sticky='news')
@@ -254,7 +254,7 @@ class GUI:
 		btn_save_js.grid(row=8, column=0, columnspan=3)
 		# Close Button
 		btn_close_js = ttk.Button(master=frame, text='Close Joystick Settings',
-								  command=lambda: self.close_settings('Joystick', frame))
+								  command=lambda: self.close_settings('Joystick', joy_page))
 		btn_close_js.grid(row=9, column=0, columnspan=3, sticky='news')
 		joy_page.protocol('WM_DELETE_WINDOW', lambda: self.close_settings('Joystick', joy_page))
 
@@ -367,10 +367,10 @@ class GUI:
 		sip_l_pressure = ttk.Label(master=frame, text='Pressure Threshold')
 		sip_l_pressure.grid(row=1, column=0, columnspan=3, sticky='w')
 
-		sip_l_pmin = ttk.Label(master=frame, text='Min 0').grid(row=2, column=0, sticky='nes')
-		sip_l_pmax = ttk.Label(master=frame, text='100 Max').grid(row=2, column=3, sticky='nws')
+		sip_l_pmin = ttk.Label(master=frame, text='10').grid(row=2, column=0, sticky='nes')
+		sip_l_pmax = ttk.Label(master=frame, text='400').grid(row=2, column=3, sticky='nws')
 
-		sip_slider_pressure = ttk.Scale(master=frame, from_=0, to=100, orient='horizontal')
+		sip_slider_pressure = ttk.Scale(master=frame, from_=10, to=400, orient='horizontal')
 		sip_slider_pressure.set(self.settings['sip_pressure_threshold'])  # update with settings value
 		sip_slider_pressure.grid(row=2, column=1, columnspan=2, sticky='news')
 		sip_slider_pressure.bind("<ButtonRelease>",
@@ -380,9 +380,9 @@ class GUI:
 		# Length of long
 		sip_l_long_time = ttk.Label(master=frame, text='Length of Long pressure')
 		sip_l_long_time.grid(row=3, column=0, columnspan=4, sticky='w')
-		sip_l_tl_min = ttk.Label(master=frame, text='Min 0').grid(row=4, column=0, sticky='nes')
-		sip_l_tl_max = ttk.Label(master=frame, text='100 Max').grid(row=4, column=3, sticky='nws')
-		sip_slider_long_time = ttk.Scale(master=frame, from_=0, to=100, orient='horizontal')
+		sip_l_tl_min = ttk.Label(master=frame, text='0.1').grid(row=4, column=0, sticky='nes')
+		sip_l_tl_max = ttk.Label(master=frame, text='2').grid(row=4, column=3, sticky='nws')
+		sip_slider_long_time = ttk.Scale(master=frame, from_=0.1, to=2, orient='horizontal')
 		sip_slider_long_time.set(self.settings['sip_long_time'])  # update with settings value
 		sip_slider_long_time.grid(row=4, column=1, columnspan=2, sticky='news')
 		sip_slider_long_time.bind("<ButtonRelease>",
@@ -392,9 +392,9 @@ class GUI:
 		# Length of short
 		sip_l_short_time = ttk.Label(master=frame, text='Length of Short pressure')
 		sip_l_short_time.grid(row=5, column=0, columnspan=4, sticky='w')
-		sip_l_tl_min = ttk.Label(master=frame, text='Min 0').grid(row=6, column=0, sticky='nes')
-		sip_l_tl_max = ttk.Label(master=frame, text='100 Max').grid(row=6, column=3, sticky='nws')
-		sip_slider_short_time = ttk.Scale(master=frame, from_=0, to=100, orient='horizontal')
+		sip_l_tl_min = ttk.Label(master=frame, text='0.1').grid(row=6, column=0, sticky='nes')
+		sip_l_tl_max = ttk.Label(master=frame, text='1').grid(row=6, column=3, sticky='nws')
+		sip_slider_short_time = ttk.Scale(master=frame, from_=0.1, to=1, orient='horizontal')
 		sip_slider_short_time.set(self.settings['sip_short_time'])  # update with settings value
 		sip_slider_short_time.grid(row=6, column=1, columnspan=2, sticky='news')
 		sip_slider_short_time.bind("<ButtonRelease>",
@@ -404,9 +404,9 @@ class GUI:
 		# Double time
 		sip_l_d_time = ttk.Label(master=frame, text='Double Time')
 		sip_l_d_time.grid(row=7, column=0, columnspan=3, sticky='w')
-		sip_l_dmin = ttk.Label(master=frame, text='Min 0').grid(row=8, column=0, sticky='nes')
-		sip_l_dmax = ttk.Label(master=frame, text='100 Max').grid(row=8, column=3, sticky='nws')
-		slider_sip_d_time = ttk.Scale(master=frame, from_=0, to=100, orient='horizontal')
+		sip_l_dmin = ttk.Label(master=frame, text='0.1').grid(row=8, column=0, sticky='nes')
+		sip_l_dmax = ttk.Label(master=frame, text='1').grid(row=8, column=3, sticky='nws')
+		slider_sip_d_time = ttk.Scale(master=frame, from_=0.1, to=1, orient='horizontal')
 		slider_sip_d_time.set(self.settings['sip_double_time'])  # update with settings value
 		slider_sip_d_time.grid(row=8, column=1, columnspan=2, sticky='news')
 		slider_sip_d_time.bind("<ButtonRelease>",
@@ -420,9 +420,9 @@ class GUI:
 		# set up pressure sensetivity
 		puff_l_pressure = ttk.Label(master=frame, text='Pressure Threshold')
 		puff_l_pressure.grid(row=1, column=4, columnspan=3, sticky='news')
-		puff_l_pmin = ttk.Label(master=frame, text='Min 0').grid(row=2, column=4, sticky='nes')
-		puff_l_pmax = ttk.Label(master=frame, text='100 Max').grid(row=2, column=7, sticky='nws')
-		puff_slider_pressure = ttk.Scale(master=frame, from_=0, to=100, orient='horizontal')
+		puff_l_pmin = ttk.Label(master=frame, text='10').grid(row=2, column=4, sticky='nes')
+		puff_l_pmax = ttk.Label(master=frame, text='400').grid(row=2, column=7, sticky='nws')
+		puff_slider_pressure = ttk.Scale(master=frame, from_=10, to=400, orient='horizontal')
 		puff_slider_pressure.set(self.settings['puff_pressure_threshold'])  # update with settings value
 		puff_slider_pressure.grid(row=2, column=5, columnspan=2, sticky='news')
 		puff_slider_pressure.bind("<ButtonRelease>",
@@ -433,9 +433,9 @@ class GUI:
 		# Length of long
 		puff_l_long_time = ttk.Label(master=frame, text='Length of Long pressure')
 		puff_l_long_time.grid(row=3, column=4, columnspan=4, sticky='news')
-		puff_l_tl_min = ttk.Label(master=frame, text='Min 0').grid(row=4, column=4, sticky='nes')
-		puff_l_tl_max = ttk.Label(master=frame, text='100 Max').grid(row=4, column=7, sticky='nws')
-		puff_slider_long_time = ttk.Scale(master=frame, from_=0, to=100, orient='horizontal')
+		puff_l_tl_min = ttk.Label(master=frame, text='0.1').grid(row=4, column=4, sticky='nes')
+		puff_l_tl_max = ttk.Label(master=frame, text='2').grid(row=4, column=7, sticky='nws')
+		puff_slider_long_time = ttk.Scale(master=frame, from_=0.1, to=2, orient='horizontal')
 		puff_slider_long_time.set(self.settings['puff_long_time'])  # update with settings value
 		puff_slider_long_time.grid(row=4, column=5, columnspan=2, sticky='news')
 		puff_slider_long_time.bind("<ButtonRelease>",
@@ -445,9 +445,9 @@ class GUI:
 		# Length of short
 		puff_l_short_time = ttk.Label(master=frame, text='Length of Short pressure')
 		puff_l_short_time.grid(row=5, column=4, columnspan=4, sticky='news')
-		puff_l_tl_min = ttk.Label(master=frame, text='Min 0').grid(row=6, column=4, sticky='nes')
-		puff_l_tl_max = ttk.Label(master=frame, text='100 Max').grid(row=6, column=7, sticky='nws')
-		puff_slider_short_time = ttk.Scale(master=frame, from_=0, to=100, orient='horizontal')
+		puff_l_tl_min = ttk.Label(master=frame, text='0.1').grid(row=6, column=4, sticky='nes')
+		puff_l_tl_max = ttk.Label(master=frame, text='1').grid(row=6, column=7, sticky='nws')
+		puff_slider_short_time = ttk.Scale(master=frame, from_=0.1, to=1, orient='horizontal')
 		puff_slider_short_time.set(self.settings['puff_short_time'])  # update with settings value
 		puff_slider_short_time.grid(row=6, column=5, columnspan=2, sticky='news')
 		puff_slider_short_time.bind("<ButtonRelease>",
@@ -457,9 +457,9 @@ class GUI:
 		# Double time
 		puff_l_d_time = ttk.Label(master=frame, text='Double Time')
 		puff_l_d_time.grid(row=7, column=4, columnspan=3, sticky='news')
-		puff_l_dmin = ttk.Label(master=frame, text='Min 0').grid(row=8, column=4, sticky='nes')
-		puff_l_dmax = ttk.Label(master=frame, text='100 Max').grid(row=8, column=7, sticky='nws')
-		slider_puff_d_time = ttk.Scale(master=frame, from_=0, to=100, orient='horizontal')
+		puff_l_dmin = ttk.Label(master=frame, text='0.1').grid(row=8, column=4, sticky='nes')
+		puff_l_dmax = ttk.Label(master=frame, text='1').grid(row=8, column=7, sticky='nws')
+		slider_puff_d_time = ttk.Scale(master=frame, from_=0.1, to=1, orient='horizontal')
 		slider_puff_d_time.set(self.settings['puff_double_time'])  # update with settings value
 		slider_puff_d_time.grid(row=8, column=5, columnspan=2, sticky='news')
 		slider_puff_d_time.bind("<ButtonRelease>",
