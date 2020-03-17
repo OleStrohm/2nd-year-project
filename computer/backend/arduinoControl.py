@@ -4,7 +4,7 @@ import mouse
 import keyboard
 from threading import Thread, Lock
 from math import floor
-from time import time, time_ns
+from time import time, time_ns, sleep
 
 
 
@@ -74,7 +74,6 @@ class ArduinoController:
 
         self.running = False
 
-        self.mutex = Lock()
         self.mouse_controller = MouseController()
 
     # data loop
@@ -200,9 +199,7 @@ class ArduinoController:
         self.gui_change_mode = callback
 
     def set_callback(self, command, function):
-        self.mutex.acquire()
         self.callbacks[command] = function
-        self.mutex.release()
 
     def handle_callback(self, command):
         self.functions[self.callbacks[command]]()
@@ -243,11 +240,7 @@ class ArduinoController:
             keyboard.press_and_release("enter")
 
     def set_bounds(self, w, h):
-        self.mutex.acquire()
-        try:
-            self.mouse_controller.set_bounds(w, h)
-        finally:
-            self.mutex.release()
+        self.mouse_controller.set_bounds(w, h)
 
     def set_puff_threshold(self, puff_threshold):
         self.puff_threshold = self.start_snp_data + puff_threshold
@@ -292,7 +285,6 @@ class MouseController:
         self.width = self.x
         self.height = self.y
         self.running = True
-        self.mutex = Lock()
         self.delay = 0.01
 
     def set_bounds(self, w, h):
@@ -307,16 +299,13 @@ class MouseController:
         self.running = False
 
     def set_direction(self, dx, dy):
-        self.mutex.acquire()
-        try:
-            self.dx = dx
-            self.dy = dy
-        finally:
-            self.mutex.release()
+        self.dx = dx
+        self.dy = dy
 
     def loop(self, _):
         last_time = time_ns()
         while self.running:
+            sleep(0.001)
             cur_time = time_ns()
             dt = (cur_time - last_time) / 1000000000
             if dt > self.delay:
