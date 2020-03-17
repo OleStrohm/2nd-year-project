@@ -887,10 +887,9 @@ class GUI:
 				self.update_sip_cmds(s_sip, s_puff, l_sip, l_puff, d_sip, d_puff)
 		window.destroy()
 
-
-def save(self, filename, dict_set):
-	save_changed_settings(filename, dict_set)
-	self.changes = False
+	def save(self, filename, dict_set):
+		save_changed_settings(filename, dict_set)
+		self.changes = False
 
 
 def save_changed_settings(filename, dict_set):

@@ -5,7 +5,7 @@ puff_pressure_threshold;700
 puff_short_time;0.15
 puff_long_time;0.6
 puff_double_time;0.4
-sip_pressure_threshold;350
+sip_pressure_threshold;184.3529411764706
 sip_short_time;0.15
 sip_long_time;0.3
 sip_double_time;0.6
