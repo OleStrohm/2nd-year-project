@@ -42,19 +42,17 @@ class App:
 
     def __init__(self):
         self.unprocessed = ""
+        arduino = ArduinoController()
         self.commands = CommandController()
         # self.commands.load_cmds("format", 'backend/cmds_format.txt')
-        arduino = ArduinoController()
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "My-First-Project-958184117e89.json"
         speech_to_text = SpeechToTextController(self, stt_callback)
-
         self.gui = GUI("gui/", 'settings/GUISetUp.txt', 'settings/settingsGUI.txt', arduino, self.commands,
                        speech_to_text)
         print("Initialized")
         arduino.start()
         speech_to_text.start()
         self.gui.start()
-
 
 if __name__ == "__main__":
     App()

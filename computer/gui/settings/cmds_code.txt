@@ -4,7 +4,6 @@ backspace backspace
 delete multi
 deleteline home,home,shift+end,backspace
 deleteword shift+ctrl+left,backspace
-test 
 semicolon ;
 double multi
 doublesemicolon ';;'
