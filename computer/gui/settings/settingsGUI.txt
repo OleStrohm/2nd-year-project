@@ -1,6 +1,6 @@
 dead_zone;5.0
 Cursor_speed;20
-high_speed;75
+high_speed;30.11764705882353
 puff_pressure_threshold;700
 puff_short_time;0.15
 puff_long_time;0.6

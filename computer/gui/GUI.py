@@ -229,9 +229,9 @@ class GUI:
 		# set the speed of the cursor
 		l_speed = ttk.Label(master=frame, text='Cursor speed')
 		l_speed.grid(row=0, column=0, columnspan=2, sticky='news')
-		l_smin = ttk.Label(master=frame, text='0.1').grid(row=1, column=0, sticky='nes')
-		l_smax = ttk.Label(master=frame, text='10').grid(row=1, column=2, sticky='nws')
-		slider_speed = ttk.Scale(master=frame, from_=0.1, to=10, orient='horizontal')
+		l_smin = ttk.Label(master=frame, text='1').grid(row=1, column=0, sticky='nes')
+		l_smax = ttk.Label(master=frame, text='150').grid(row=1, column=2, sticky='nws')
+		slider_speed = ttk.Scale(master=frame, from_=1, to=150, orient='horizontal')
 		slider_speed.set(self.settings['Cursor_speed'])  # update with settings value
 		slider_speed.grid(row=1, column=1, columnspan=1, sticky='news')
 		slider_speed.bind("<ButtonRelease>", lambda event: self.settings_update(slider_speed.get(), 'Cursor_speed',

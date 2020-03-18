@@ -67,4 +67,3 @@ if __name__ == "__main__":
     print("processed: " + processed)
     print("hotkey: " + hotkey)
     print("unprocessed: " + unprocessed)
-    kb.wait("esc")
