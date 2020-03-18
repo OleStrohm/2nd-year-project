@@ -4,9 +4,11 @@ close multi
 closetab ctrl+w
 new multi
 newtab ctrl+t
-new multi
 newwindow ctrl+n
-history ctrl+h
 search ctrl+l
 reopen multi
 reopentab ctrl+shift+t
+history ctrl+t,ctrl+h
+close multi
+closewindow ctrl+shift+w
+enter enter

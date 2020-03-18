@@ -124,7 +124,7 @@ class ArduinoController:
                     scaling = self.mouse_higher_scaling
                 else:
                     scaling = self.mouse_lower_scaling
-                UD_scaling = scaling * 2
+                UD_scaling = scaling * 3
                 if abs(UD) > self.mouse_dead_zone or abs(LR) > self.mouse_dead_zone:
                     self.mouse_controller.set_direction(LR * scaling, UD * UD_scaling)
                 else:
@@ -220,8 +220,8 @@ class ArduinoController:
             mouse.release()
 
     def handle_click(self):
-        if not self.drag:
-            mouse.click()
+        mouse.click()
+        self.drag = False
 
     def handle_double_click(self):
         if not self.drag:

@@ -44,7 +44,7 @@ class GUI:
 		self.transcription = self.modes[self.settings['start_mode']].trans
 		self.echo = self.modes[self.settings['start_mode']].echo
 		self.current_mode = self.settings['start_mode']
-		self.previous_mode = self.settings['start_mode']
+		self.previous_mode = 'Chrome'
 
 		# set up root window
 		# self.root = tk.Tk()

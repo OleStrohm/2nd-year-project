@@ -13,4 +13,4 @@ select multi
 selectall ctrl+a
 print 'std::cout<<"'
 end multi
-endline '"<<std::endl;'
+endline '"<<std::endl;'enter enter
