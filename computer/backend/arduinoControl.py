@@ -35,11 +35,11 @@ class ArduinoController:
 
         self.callbacks = {
             "short_sip": "left",
-            "double_sip": "left",
-            "long_sip": "left",
-            "short_puff": "left",
-            "double_puff": "left",
-            "long_puff": "left"
+            "double_sip": "prev mode",
+            "long_sip": "drag",
+            "short_puff": "right",
+            "double_puff": "double",
+            "long_puff": "middle"
         }
 
         self.puff_threshold = 600
