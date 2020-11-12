@@ -1,6 +1,6 @@
 # 2nd-year-project
 A project to help people with disabilities utilize technology at a normal level.
-Our team got 3rd place among the best projects
+Our team got 3rd place among the best projects of the cohort.
 
 ## The team
 Ben Ong
